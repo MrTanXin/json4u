@@ -1,12 +1,5 @@
 {
   "": "",
-  "SiteBanner": {
-    "international": "For a more powerful experience, we recommend",
-    "internationalSuffix": "— it includes everything you need and more.",
-    "domestic": "json4u.cn 将于 2026 年 7 月 31 日停止服务，推荐使用",
-    "domesticSuffix": "——功能更完整、更强大。",
-    "dismiss": "关闭公告"
-  },
   "Loading": "加载中",
   "TextCompare": "文本比较",
   "compare": "比较",

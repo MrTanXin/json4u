@@ -1,12 +1,5 @@
 {
   "": "",
-  "SiteBanner": {
-    "international": "For a more powerful experience, we recommend",
-    "internationalSuffix": "— it includes everything you need and more.",
-    "domestic": "json4u.cn will be discontinued on July 31, 2026. We recommend",
-    "domesticSuffix": "— it offers a more complete and powerful toolkit.",
-    "dismiss": "Dismiss announcement"
-  },
   "Loading": "Loading",
   "TextCompare": "Text Compare",
   "compare": "Compare",
