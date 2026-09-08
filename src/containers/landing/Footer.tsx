@@ -3,7 +3,6 @@ import { type Href } from "@/components/LinkButton";
 import GitHub from "@/components/icons/GitHub";
 import Logo from "@/components/icons/Logo";
 import Twitter from "@/components/icons/Twitter";
-import Weibo from "@/components/icons/Weibo";
 import { isCN } from "@/lib/env";
 import { useTranslations } from "next-intl";
 
@@ -14,7 +13,6 @@ export default function Footer() {
     ...(isCN
       ? [
           { href: "https://support.qq.com/product/670462", title: t("Feedback") },
-          { href: "https://weibo.com/loggerhead", title: <Weibo className="icon" /> },
         ]
       : [
           { href: "https://github.com/MrTanXin/json4u/issues/new", title: t("Feedback") },
