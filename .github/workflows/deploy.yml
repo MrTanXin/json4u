@@ -154,6 +154,7 @@ jobs:
           echo "首页状态码: $code"
           [ "$code" = "200" ] || { echo "外部访问失败"; exit 1; }
           grep -q "沪ICP备2026043915号" page.html && echo "ICP 备案号存在 ✓" || { echo "ICP 备案号缺失"; exit 1; }
+          grep -q "沪公网安备31010702010707号" page.html && echo "公安备案号存在 ✓" || { echo "公安备案号缺失"; exit 1; }
           grep -q "treease.com" page.html && { echo "停服公告仍存在！"; exit 1; } || echo "停服公告已移除 ✓"
           editor=$(curl -s -o /dev/null -w '%{http_code}' -m 20 "$APP_URL/editor")
           echo "编辑器状态码: $editor"

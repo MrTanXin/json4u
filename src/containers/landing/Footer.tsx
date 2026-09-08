@@ -47,7 +47,14 @@ function Legal() {
   return (
     <div className="flex items-center lg:gap-8 lg:ml-0 ml-auto gap-4">
       {isCN ? (
-        <FooterLink nofollow href="https://beian.miit.gov.cn" title={"沪ICP备2026043915号"} />
+        <>
+          <FooterLink nofollow href="https://beian.miit.gov.cn" title={"沪ICP备2026043915号"} />
+          <FooterLink
+            nofollow
+            href="https://beian.mps.gov.cn/#/query/webSearch?code=31010702010707"
+            title={"沪公网安备31010702010707号"}
+          />
+        </>
       ) : (
         <>
           <FooterLink href="/terms" title={t("Terms")} />
