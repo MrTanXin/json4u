@@ -17,10 +17,10 @@ export default function Footer() {
           { href: "https://weibo.com/loggerhead", title: <Weibo className="icon" /> },
         ]
       : [
-          { href: "https://github.com/loggerhead/json4u/issues/new", title: t("Feedback") },
+          { href: "https://github.com/MrTanXin/json4u/issues/new", title: t("Feedback") },
           { href: "https://x.com/1oggerhead", title: <Twitter className="icon" /> },
         ]),
-    { href: "https://github.com/loggerhead/json4u", title: <GitHub className="icon" /> },
+    { href: "https://github.com/MrTanXin/json4u", title: <GitHub className="icon" /> },
   ];
 
   return (

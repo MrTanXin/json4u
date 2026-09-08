@@ -135,7 +135,7 @@ export default function SideNav() {
           <LinkButton
             icon={<Bug className="icon" />}
             title={t("Feedback")}
-            href={isCN ? "https://support.qq.com/product/670462" : "https://github.com/loggerhead/json4u/issues/new"}
+            href={isCN ? "https://support.qq.com/product/670462" : "https://github.com/MrTanXin/json4u/issues/new"}
             newWindow
           />
           <Button

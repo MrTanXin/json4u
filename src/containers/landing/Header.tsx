@@ -44,7 +44,7 @@ export default function Header() {
             {t("Editor")}
           </LinkButton>
           <Separator className="md:flex hidden" orientation="vertical" />
-          <Link className="md:flex hidden" href="https://github.com/loggerhead/json4u">
+          <Link className="md:flex hidden" href="https://github.com/MrTanXin/json4u">
             <GitHub className="w-6 h-6" />
           </Link>
         </div>
