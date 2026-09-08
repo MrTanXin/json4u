@@ -12,7 +12,7 @@ export default function Footer() {
     { href: "https://www.trustpilot.com/review/json4u.com", title: t("Give a rating") },
     ...(isCN
       ? [
-          { href: "https://support.qq.com/product/670462", title: t("Feedback") },
+          { href: "https://github.com/MrTanXin/json4u/issues/new", title: t("Feedback") },
         ]
       : [
           { href: "https://github.com/MrTanXin/json4u/issues/new", title: t("Feedback") },

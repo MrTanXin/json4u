@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/icons/Logo";
 import { Separator } from "@/components/ui/separator";
-import { isCN, version } from "@/lib/env";
+import { version } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { useConfigFromCookies } from "@/stores/hook";
 import { useStatusStore } from "@/stores/statusStore";
@@ -135,7 +135,7 @@ export default function SideNav() {
           <LinkButton
             icon={<Bug className="icon" />}
             title={t("Feedback")}
-            href={isCN ? "https://support.qq.com/product/670462" : "https://github.com/MrTanXin/json4u/issues/new"}
+            href={"https://github.com/MrTanXin/json4u/issues/new"}
             newWindow
           />
           <Button
