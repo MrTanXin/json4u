@@ -17,5 +17,5 @@ export const env = createEnv({
 });
 
 // Is the .cn domain?
-export const isCN = /\.cn(:3000)?$/.test(env.NEXT_PUBLIC_APP_URL);
+export const isCN = true;
 export const isDev = process.env.NODE_ENV === "development";

@@ -1,0 +1,157 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: "跳过构建，直接用上次产物重新部署"
+        type: boolean
+        default: false
+
+# 同一时间只允许一个部署在跑，后到的排队而不是并发覆盖
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  APP_URL: https://json.dududu.xin
+  CONTAINER: json4u
+  IMAGE: json4u:local
+  REMOTE_DIR: /opt/json4u-deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 构建
+        env:
+          NEXT_PUBLIC_APP_URL: ${{ env.APP_URL }}
+          NEXT_TELEMETRY_DISABLED: "1"
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: pnpm run build
+
+      - name: 打包产物
+        run: |
+          set -e
+          tar czf release.tar.gz \
+            .next/standalone \
+            .next/static \
+            public \
+            runtime.dockerfile
+          echo "产物大小: $(du -h release.tar.gz | cut -f1)"
+
+      - name: 配置 SSH
+        run: |
+          set -e
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # 固定主机指纹，避免中间人；指纹由部署配置时写入
+          echo "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: 上传产物
+        run: |
+          set -e
+          ssh -o BatchMode=yes root@${{ secrets.DEPLOY_HOST }} "mkdir -p $REMOTE_DIR"
+          scp -o BatchMode=yes release.tar.gz root@${{ secrets.DEPLOY_HOST }}:$REMOTE_DIR/release.tar.gz
+
+      - name: 部署（含健康检查与自动回滚）
+        run: |
+          ssh -o BatchMode=yes root@${{ secrets.DEPLOY_HOST }} \
+            "CONTAINER='${CONTAINER}' IMAGE='${IMAGE}' REMOTE_DIR='${REMOTE_DIR}' bash -s" <<'REMOTE'
+          set -euo pipefail
+
+          cd "$REMOTE_DIR"
+          rm -rf release && mkdir release
+          tar xzf release.tar.gz -C release
+          echo "==> 产物解包完成"
+
+          # 保留当前镜像作为回滚点
+          if docker image inspect "$IMAGE" >/dev/null 2>&1; then
+            docker tag "$IMAGE" json4u:previous
+            echo "==> 已保存回滚镜像 json4u:previous"
+            HAVE_ROLLBACK=1
+          else
+            HAVE_ROLLBACK=0
+          fi
+
+          docker build -f release/runtime.dockerfile -t "$IMAGE" release
+          echo "==> 镜像构建完成"
+
+          start_container() {
+            docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
+            docker run -d --name "$CONTAINER" \
+              --restart=unless-stopped \
+              --memory=600m --memory-swap=900m --cpus=1.0 \
+              --oom-score-adj=300 \
+              -p 127.0.0.1:3000:3000 \
+              "$1" >/dev/null
+          }
+
+          health() {
+            for _ in $(seq 1 30); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' -m 5 http://127.0.0.1:3000/ || echo 000)
+              [ "$code" = "200" ] && return 0
+              sleep 3
+            done
+            return 1
+          }
+
+          start_container "$IMAGE"
+          echo "==> 新容器已启动，开始健康检查"
+
+          if health; then
+            echo "==> 健康检查通过 ✓"
+          else
+            echo "==> 健康检查失败，日志如下："
+            docker logs --tail 40 "$CONTAINER" 2>&1 || true
+            if [ "$HAVE_ROLLBACK" = "1" ]; then
+              echo "==> 正在回滚到 json4u:previous"
+              start_container json4u:previous
+              if health; then echo "==> 回滚成功，线上已恢复旧版本"; else echo "==> 回滚后仍不健康！"; fi
+            fi
+            exit 1
+          fi
+
+          docker image prune -f >/dev/null 2>&1 || true
+          echo "==> 部署完成"
+          docker ps --format '{{.Names}} | {{.Status}}'
+          REMOTE
+
+      - name: 外部端到端验证
+        run: |
+          set -e
+          for i in $(seq 1 10); do
+            code=$(curl -s -o page.html -w '%{http_code}' -m 20 "$APP_URL/" || echo 000)
+            [ "$code" = "200" ] && break
+            echo "第 $i 次: code=$code，重试中"; sleep 6
+          done
+          echo "首页状态码: $code"
+          [ "$code" = "200" ] || { echo "外部访问失败"; exit 1; }
+          grep -q "沪ICP备2026043915号" page.html && echo "ICP 备案号存在 ✓" || { echo "ICP 备案号缺失"; exit 1; }
+          grep -q "treease.com" page.html && { echo "停服公告仍存在！"; exit 1; } || echo "停服公告已移除 ✓"
+          editor=$(curl -s -o /dev/null -w '%{http_code}' -m 20 "$APP_URL/editor")
+          echo "编辑器状态码: $editor"
+          [ "$editor" = "200" ] || exit 1
+          echo "全部验证通过 ✓"

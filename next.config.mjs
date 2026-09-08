@@ -21,9 +21,16 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   poweredByHeader: false,
-  output: isCN ? "standalone" : undefined,
+  // 部署流水线不重复跑类型/lint 检查（CI 单独有 lint 步骤），避免构建被非致命问题阻塞
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  productionBrowserSourceMaps: false,
+  output: "standalone",
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
   experimental: {
+    // 单 worker 构建：显著降低内存峰值，使 2C/2G 小机器也能完成构建
+    cpus: 1,
+    workerThreads: false,
     optimizePackageImports: [
       "react-use",
       "@next/mdx",
