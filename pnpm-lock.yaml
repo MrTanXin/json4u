@@ -122,6 +122,9 @@ importers:
       lucide-react:
         specifier: ^0.390.0
         version: 0.390.0(react@18.3.1)
+      monaco-editor:
+        specifier: ^0.52.2
+        version: 0.52.2
       next:
         specifier: ^14.2.30
         version: 14.2.30(@babel/core@7.25.2)(@opentelemetry/api@1.9.0)(@playwright/test@1.48.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -243,9 +246,6 @@ importers:
       jiti:
         specifier: ^1.21.6
         version: 1.21.6
-      monaco-editor:
-        specifier: ^0.52.2
-        version: 0.52.2
       postcss:
         specifier: ^8.4.41
         version: 8.4.41

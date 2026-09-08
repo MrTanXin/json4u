@@ -46,8 +46,12 @@ jobs:
       - name: 构建
         env:
           NEXT_PUBLIC_APP_URL: ${{ env.APP_URL }}
+          # 在仓库 Variables 里设置 ASSET_PREFIX（如 https://static.dududu.xin）即可让
+          # /_next/static 走 CDN；不设置则静态资源仍由源站直接分发。
+          NEXT_PUBLIC_ASSET_PREFIX: ${{ vars.ASSET_PREFIX }}
           NEXT_TELEMETRY_DISABLED: "1"
-          NODE_OPTIONS: --max-old-space-size=4096
+          # Monaco 改为自托管后要在构建期打包整个编辑器，内存峰值明显高于此前
+          NODE_OPTIONS: --max-old-space-size=6144
         run: pnpm run build
 
       - name: 打包产物

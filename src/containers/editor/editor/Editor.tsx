@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, type ComponentPropsWithoutRef } from "react";
+import { useEffect, useRef, useState, type ComponentPropsWithoutRef } from "react";
 import Loading from "@/components/Loading";
-import { vsURL } from "@/lib/editor/cdn";
+import { isSelfHostedMonaco, vsURL } from "@/lib/editor/cdn";
 import { EditorWrapper, type Kind } from "@/lib/editor/editor";
 import { useEditor, useEditorStore } from "@/stores/editorStore";
 import { useStatusStore } from "@/stores/statusStore";
@@ -12,7 +12,27 @@ import { useShallow } from "zustand/shallow";
 import { example } from "./data";
 import { getInitialJSONFromSearch } from "./url";
 
-loader.config({ paths: { vs: vsURL } });
+// 自托管时把打包好的 monaco 实例直接交给 loader，跳过 AMD 加载器和跨域往返；
+// 只有显式配置了 NEXT_PUBLIC_MONACO_CDN 才回退到 CDN 的 paths 方式。
+let monacoReady: Promise<void> | null = null;
+
+function ensureMonaco(): Promise<void> {
+  if (!monacoReady) {
+    monacoReady = import("@/lib/editor/monaco").then(({ setupMonaco }) => {
+      loader.config({ monaco: setupMonaco() });
+    });
+  }
+  return monacoReady;
+}
+
+if (isSelfHostedMonaco) {
+  // 在浏览器端模块求值时就开始下载 monaco chunk，与 React 渲染并行，而不是等到组件挂载。
+  if (typeof window !== "undefined") {
+    ensureMonaco();
+  }
+} else {
+  loader.config({ paths: { vs: vsURL! } });
+}
 
 interface EditorProps extends ComponentPropsWithoutRef<typeof MonacoEditor> {
   kind: Kind;
@@ -22,10 +42,16 @@ export default function Editor({ kind, ...props }: EditorProps) {
   const translations = useTranslations();
   const setEditor = useEditorStore((state) => state.setEditor);
   const setTranslations = useEditorStore((state) => state.setTranslations);
+  const loaderConfigured = useMonacoLoader();
 
   useDisplayExample(kind);
   useRevealNode(kind);
   useEditTree(kind);
+
+  // loader.config 必须先于任何编辑器挂载完成，否则 @monaco-editor/react 会用默认的 CDN 配置。
+  if (!loaderConfigured) {
+    return <Loading />;
+  }
 
   return (
     <MonacoEditor
@@ -65,6 +91,25 @@ export default function Editor({ kind, ...props }: EditorProps) {
       {...props}
     />
   );
+}
+
+// 等待自托管的 monaco chunk 就绪；使用 CDN 时无需等待。
+function useMonacoLoader() {
+  const [ready, setReady] = useState(!isSelfHostedMonaco);
+
+  useEffect(() => {
+    if (ready) {
+      return;
+    }
+
+    let alive = true;
+    ensureMonaco().then(() => alive && setReady(true));
+    return () => {
+      alive = false;
+    };
+  }, [ready]);
+
+  return ready;
 }
 
 // reveal position in text

@@ -15,6 +15,10 @@ declare global {
   }
 
   interface Window {
+    // 自托管 Monaco 时由 lib/editor/monaco.ts 设置，用于指定 json / editor worker 的构造方式。
+    MonacoEnvironment?: {
+      getWorker: (workerId: string, label: string) => Worker;
+    };
     rawWorker: Worker;
     worker: Remote<MyWorker>;
     monacoApi: MonacoApi;

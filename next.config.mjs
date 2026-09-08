@@ -26,6 +26,10 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   productionBrowserSourceMaps: false,
   output: "standalone",
+  // 自托管 Monaco 后 /_next/static 体积明显变大，全部由源站发既占带宽也容易被刷。
+  // 配置 NEXT_PUBLIC_ASSET_PREFIX 指向 CDN 域名后，静态资源只回源一次，之后走边缘缓存。
+  // 留空则维持现状（由 Next 自身分发）。
+  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || undefined,
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
   experimental: {
     // 单 worker 构建：显著降低内存峰值，使 2C/2G 小机器也能完成构建
@@ -36,7 +40,6 @@ const nextConfig = {
       "@next/mdx",
       "lodash-es",
       "lucide-react",
-      "monaco-editor",
       "@xyflow/react",
       "zod",
       "usehooks-ts",

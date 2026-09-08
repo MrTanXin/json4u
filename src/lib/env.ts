@@ -10,9 +10,12 @@ export const env = createEnv({
   server: {},
   client: {
     NEXT_PUBLIC_APP_URL: z.string().regex(/https?:\/\/(\w+\.)+\w+(:\d+)?/g),
+    // 留空则自托管 Monaco；填 "auto" 或 vs 目录的完整 URL 则改为从 CDN 加载。
+    NEXT_PUBLIC_MONACO_CDN: z.string().optional(),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_MONACO_CDN: process.env.NEXT_PUBLIC_MONACO_CDN,
   },
 });
 
