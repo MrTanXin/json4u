@@ -42,7 +42,7 @@ export function unescape(text: string): string {
 
 function isValidJSON(text: string): boolean {
   const errors: jsonc.ParseError[] = [];
-  jsonc.parse(text, undefined, errors);
+  jsonc.parse(text, errors);
   return errors.length === 0;
 }
 
@@ -52,7 +52,7 @@ function isValidJSON(text: string): boolean {
  */
 export function autoUnescape(text: string): string {
   const errors: jsonc.ParseError[] = [];
-  const value = jsonc.parse(text, undefined, errors);
+  const value = jsonc.parse(text, errors);
 
   // A JSON string containing another JSON document, e.g.
   // "{\"field\":\"value\"}".
@@ -105,7 +105,7 @@ export function decodeUnicode(text: string): string {
     }
 
     const slashCount = index - slashStart;
-    const escape = readUnicodeEscape(normalized, index);
+    const escape = slashCount % 2 === 1 ? readUnicodeEscape(normalized, index - 1) : undefined;
     if (slashCount % 2 === 0 || !escape) {
       // An even number of slashes means the final slash is escaped and the
       // following text is literal. Malformed Unicode is preserved as-is.
