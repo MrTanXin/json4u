@@ -13,6 +13,10 @@ interface CompareResult {
   isTextCompare: boolean;
 }
 
+function compareLog(event: string, details: Record<string, unknown> = {}) {
+  console.info("[json4u:compare]", event, details);
+}
+
 export class Comparer {
   main: EditorWrapper;
   secondary: EditorWrapper;
@@ -55,13 +59,32 @@ export class Comparer {
   }
 
   private async compareCurrent(): Promise<CompareResult> {
+    const startedAt = Date.now();
     const isTextCompare = this.enableTextCompare() || !(this.main.isTreeValid() && this.secondary.isTreeValid());
     const mainText = this.main.text();
     const secondaryText = this.secondary.text();
-    const diffPairs = isTextCompare
-      ? await this.worker().compareText(mainText, secondaryText)
-      : await this.worker().compareTree(this.main.tree, this.secondary.tree);
-    return { diffPairs, isTextCompare };
+    try {
+      const diffPairs = isTextCompare
+        ? await this.worker().compareText(mainText, secondaryText)
+        : await this.worker().compareTree(this.main.tree, this.secondary.tree);
+      compareLog("worker completed", {
+        mode: isTextCompare ? "text" : "tree",
+        mainLength: mainText.length,
+        secondaryLength: secondaryText.length,
+        diffPairs: diffPairs.length,
+        durationMs: Date.now() - startedAt,
+      });
+      return { diffPairs, isTextCompare };
+    } catch (error) {
+      compareLog("worker failed", {
+        mode: isTextCompare ? "text" : "tree",
+        mainLength: mainText.length,
+        secondaryLength: secondaryText.length,
+        durationMs: Date.now() - startedAt,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
   }
 
   async compare(): Promise<CompareResult | undefined> {
@@ -69,6 +92,7 @@ export class Comparer {
     this.refreshAfterEdit.cancel();
     this.refreshScheduled = false;
     this.comparisonVersion++;
+    compareLog("requested", { version: this.comparisonVersion });
 
     // A compare can already be running because of an earlier edit. Wait for it
     // and retry with the latest editor contents instead of queuing another
@@ -91,6 +115,12 @@ export class Comparer {
     // Invalidate an in-flight comparison and coalesce rapid edits into one refresh.
     this.comparisonVersion++;
     this.refreshScheduled = true;
+    compareLog("editor changed", {
+      version: this.comparisonVersion,
+      mainLength: this.main.text().length,
+      secondaryLength: this.secondary.text().length,
+      refreshWaitMs: compareWait,
+    });
     this.refreshAfterEdit();
   }
 
@@ -118,17 +148,34 @@ export class Comparer {
       return undefined;
     }
 
+    const reused = !!this.compareInFlight;
     const request = this.compareInFlight ?? this.startCompare(version);
+    if (reused) {
+      compareLog("reusing in-flight worker request", {
+        requestedVersion: version,
+        requestVersion: request.version,
+      });
+    }
     const result = await request.promise;
 
     // Ignore results calculated against an older editor snapshot. The caller
     // will either retry immediately (manual compare) or wait for the debounced
     // refresh (editor update).
     if (!this.comparisonActive || request.version !== this.comparisonVersion || version !== this.comparisonVersion) {
+      compareLog("discarded stale result", {
+        requestVersion: request.version,
+        requestedVersion: version,
+        currentVersion: this.comparisonVersion,
+      });
       return undefined;
     }
 
     this.highlightDiff(result.diffPairs, result.isTextCompare);
+    compareLog("highlights applied", {
+      version,
+      mode: result.isTextCompare ? "text" : "tree",
+      diffPairs: result.diffPairs.length,
+    });
     return result;
   }
 

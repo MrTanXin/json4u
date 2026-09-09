@@ -227,6 +227,7 @@ export class EditorWrapper {
     resetCursor: boolean = true,
     expectedEditorText?: string,
   ): Promise<{ set: boolean; parse: boolean }> {
+    const startedAt = Date.now();
     const options = {
       ...getStatusState().parseOptions,
       ...extraParseOptions,
@@ -238,10 +239,23 @@ export class EditorWrapper {
     // Do not let a slow parse started for an older editor version overwrite a
     // newer edit or its comparison state.
     if (expectedEditorText !== undefined && this.text() !== expectedEditorText) {
+      console.info("[json4u:parse] discarded stale parse", {
+        kind: this.kind,
+        inputLength: text.length,
+        currentLength: this.text().length,
+        durationMs: Date.now() - startedAt,
+      });
       return { set: false, parse: false };
     }
 
     const tree = this.setTree(parsedTree, resetCursor);
+    console.info("[json4u:parse] worker completed", {
+      kind: this.kind,
+      inputLength: text.length,
+      valid: tree.valid(),
+      resetCursor,
+      durationMs: Date.now() - startedAt,
+    });
     return { set: true, parse: tree.valid() };
   }
 
