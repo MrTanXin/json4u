@@ -1,3 +1,5 @@
+import * as jsonc from "jsonc-parser";
+
 const ESCAPE_MAP: Record<string, string> = {
   "\\": "\\\\",
   '"': '\\"',
@@ -16,6 +18,7 @@ const UNESCAPE_MAP: Record<string, string> = {
   t: "\t",
   '"': '"',
   "\\": "\\",
+  "/": "/",
 };
 
 const ESCAPE_RE = /[\\"\u0000-\u001F\/]/g;
@@ -34,4 +37,36 @@ export function unescape(text: string): string {
       ? prefix + UNESCAPE_MAP[c]
       : prefix + (cnt % 2 ? "\\" : "") + c;
   });
+}
+
+function isValidJSON(text: string): boolean {
+  const errors: jsonc.ParseError[] = [];
+  jsonc.parse(text, undefined, errors);
+  return errors.length === 0;
+}
+
+/**
+ * Removes one outer string-escaping layer when the input is an escaped JSON
+ * document. Ordinary valid JSON is returned unchanged.
+ */
+export function autoUnescape(text: string): string {
+  const errors: jsonc.ParseError[] = [];
+  const value = jsonc.parse(text, undefined, errors);
+
+  // A JSON string containing another JSON document, e.g.
+  // "{\"field\":\"value\"}".
+  if (errors.length === 0 && typeof value === "string" && isValidJSON(value)) {
+    return value;
+  }
+
+  // An escaped JSON document without an outer pair of quotes, e.g.
+  // {\"field\":\"value\"}.
+  if (errors.length > 0) {
+    const unescaped = unescape(text);
+    if (unescaped !== text && isValidJSON(unescaped)) {
+      return unescaped;
+    }
+  }
+
+  return text;
 }

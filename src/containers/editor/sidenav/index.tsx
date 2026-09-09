@@ -20,6 +20,7 @@ import {
   ArrowLeftToLine,
   ArrowRightFromLine,
   Bug,
+  Text,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useShallow } from "zustand/shallow";
@@ -48,6 +49,8 @@ export default function SideNav() {
     enableAutoFormat,
     enableAutoSort,
     enableNestParse,
+    enableAutoUnescape,
+    setEnableAutoUnescape,
     setParseOptions,
     enableSyncScroll,
     setEnableSyncScroll,
@@ -62,6 +65,8 @@ export default function SideNav() {
         enableAutoFormat: !!parseOptions.format,
         enableAutoSort: !!parseOptions.sort,
         enableNestParse: !!parseOptions.nest,
+        enableAutoUnescape: state._hasHydrated ? state.enableAutoUnescape : cc.enableAutoUnescape,
+        setEnableAutoUnescape: state.setEnableAutoUnescape,
         setParseOptions: state.setParseOptions,
         enableSyncScroll: state._hasHydrated ? state.enableSyncScroll : cc.enableSyncScroll,
         setEnableSyncScroll: state.setEnableSyncScroll,
@@ -107,6 +112,13 @@ export default function SideNav() {
             description={t("auto_format_desc")}
             isPressed={enableAutoFormat}
             onPressedChange={(pressed) => setParseOptions({ format: pressed })}
+          />
+          <Toggle
+            icon={<Text className="icon" />}
+            title={t("Auto Unescape")}
+            description={t("auto_unescape_desc")}
+            isPressed={enableAutoUnescape}
+            onPressedChange={(pressed) => setEnableAutoUnescape(pressed)}
           />
           <Toggle
             icon={<SquareStack className="icon" />}

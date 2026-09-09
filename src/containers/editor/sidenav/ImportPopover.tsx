@@ -89,7 +89,7 @@ function useOnFile(fileType: FileType, options: { csvWithHeader?: boolean }) {
       }
 
       const text = r.text ?? "";
-      await main.parseAndSet(text);
+      await main.parseAndSetInput(text);
     };
 
     reader.readAsText(file);

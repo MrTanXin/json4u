@@ -1,7 +1,7 @@
 import type { RevealTarget } from "@/lib/graph/types";
 import { newRevealPosition } from "@/lib/graph/utils";
 import { ParseOptions, Tree } from "@/lib/parser";
-import { escape } from "@/lib/worker/command/escape";
+import { autoUnescape, escape } from "@/lib/worker/command/escape";
 import { type ParsedTree } from "@/lib/worker/command/parse";
 import { getEditorState } from "@/stores/editorStore";
 import { getStatusState, type TreeEdit } from "@/stores/statusStore";
@@ -226,6 +226,12 @@ export class EditorWrapper {
     return { set: true, parse: tree.valid() };
   }
 
+  async parseAndSetInput(text: string): Promise<{ set: boolean; parse: boolean }> {
+    const processedText = getStatusState().enableAutoUnescape ? autoUnescape(text) : text;
+    this.tree.text = processedText;
+    return this.parseAndSet(processedText);
+  }
+
   listenOnChange() {
     this.editor.onDidChangeModelContent(async (ev) => {
       const prevText = this.tree.text;
@@ -254,7 +260,7 @@ export class EditorWrapper {
         this.tree.text = text;
         // sometimes onChange will triggered before onDidPaste, so we need to cancel it
         this.delayParseAndSet.cancel();
-        await this.parseAndSet(text);
+        await this.parseAndSetInput(text);
       } else {
         console.l("skip onDidPaste:", versionId, text.length, text.slice(0, 20));
       }
@@ -319,7 +325,7 @@ export class EditorWrapper {
         const reader = new FileReader();
         reader.onload = (event) => {
           const text = event.target?.result;
-          typeof text === "string" && this.parseAndSet(text);
+          typeof text === "string" && this.parseAndSetInput(text);
         };
         reader.readAsText(file);
       }

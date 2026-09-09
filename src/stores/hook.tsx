@@ -6,5 +6,12 @@ import { useCookies } from "next-client-cookies";
 
 export function useConfigFromCookies() {
   const cookies = useCookies();
-  return tryCatch<Config>(() => JSON.parse(cookies.get("config")!)["state"], defaultConfig);
+  return tryCatch<Config>(() => {
+    const state = (JSON.parse(cookies.get("config")!)["state"] ?? {}) as Partial<Config>;
+    return {
+      ...defaultConfig,
+      ...state,
+      parseOptions: { ...defaultConfig.parseOptions, ...(state.parseOptions ?? {}) },
+    };
+  }, defaultConfig);
 }
