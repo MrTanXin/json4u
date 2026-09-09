@@ -18,7 +18,7 @@ describe("Comparer auto refresh", () => {
 
     main.notifyChange();
     secondary.notifyChange();
-    await vi.advanceTimersByTimeAsync(300);
+    await vi.advanceTimersByTimeAsync(30);
     expect(compareTree).not.toHaveBeenCalled();
 
     await comparer.compare();
@@ -27,7 +27,7 @@ describe("Comparer auto refresh", () => {
 
     rightText = '{"value":2}';
     secondary.notifyChange();
-    await vi.advanceTimersByTimeAsync(299);
+    await vi.advanceTimersByTimeAsync(29);
     expect(compareTree).toHaveBeenCalledTimes(1);
 
     await vi.advanceTimersByTimeAsync(1);
@@ -54,7 +54,7 @@ describe("Comparer auto refresh", () => {
 
     rightText = '{"value":2}';
     secondary.notifyChange();
-    await vi.advanceTimersByTimeAsync(300);
+    await vi.advanceTimersByTimeAsync(30);
     expect(compareTree).toHaveBeenCalledTimes(1);
 
     resolveFirst([]);

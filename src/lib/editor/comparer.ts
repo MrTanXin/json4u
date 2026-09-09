@@ -6,7 +6,7 @@ import type { EditorWrapper, Kind } from "./editor";
 import { editorApi } from "./types";
 import { debounce, type DebouncedFunc } from "lodash-es";
 
-const compareWait = 300;
+const compareWait = 30;
 
 interface CompareResult {
   diffPairs: DiffPair[];
