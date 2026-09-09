@@ -23,6 +23,7 @@ export interface Config {
   formatTabWidth: number;
   prettyFormat: boolean;
   enableAutoUnescape: boolean;
+  enableAutoUnicode: boolean;
   enableSyncScroll: boolean; // the left and right side editors scroll in sync
   isTouchpad?: boolean;
   fixSideNav: boolean;
@@ -42,6 +43,7 @@ export const defaultConfig: Config = {
   formatTabWidth: 2,
   prettyFormat: true,
   enableAutoUnescape: true,
+  enableAutoUnicode: true,
   enableSyncScroll: true,
   isTouchpad: undefined,
   fixSideNav: false,

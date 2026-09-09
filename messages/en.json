@@ -31,6 +31,8 @@
   "auto_format_desc": "Try to auto format even when the text is not a valid JSON while pasting text or drag-and-dropping a file into the editor.",
   "Auto Unescape": "Auto Unescape",
   "auto_unescape_desc": "Automatically detect and remove one layer of string escaping when pasting text or importing a file.",
+  "Auto Unicode": "Auto Unicode",
+  "auto_unicode_desc": "Automatically convert valid Unicode escapes to characters when pasting text or importing a file.",
   "Auto Sort": "Auto Sort",
   "auto_sort_desc": "Sort JSON data in ascending order when pasting text or drag-and-drop a file into the editor.",
   "Nested Parse": "Nested Parse",

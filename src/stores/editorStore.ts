@@ -66,6 +66,14 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       },
     },
     {
+      id: "unicode",
+      run: async () => {
+        const { main } = get();
+        const { set } = await main!.parseAndSet(await window.worker.unicode(main!.text()));
+        return set;
+      },
+    },
+    {
       id: "sortAsc",
       Icon: ArrowDownNarrowWide,
       run: async () => {

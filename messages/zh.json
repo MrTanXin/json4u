@@ -31,6 +31,8 @@
   "auto_format_desc": "在粘贴文本或将文件拖放到编辑器中时，即使文本不是有效的 JSON 数据，也尝试自动进行格式化。",
   "Auto Unescape": "自动去除转义",
   "auto_unescape_desc": "在粘贴文本或将文件导入编辑器时，自动识别并去除一层字符串转义。",
+  "Auto Unicode": "自动转换 Unicode",
+  "auto_unicode_desc": "在粘贴文本或将文件导入编辑器时，自动将有效的 Unicode 编码转换为实际字符。",
   "Auto Sort": "自动排序",
   "auto_sort_desc": "在粘贴文本或将文件拖放到编辑器中时，自动将 JSON 按升序排序。",
   "Nested Parse": "嵌套解析",

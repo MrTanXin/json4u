@@ -51,6 +51,7 @@ export interface StatusState extends Config {
   setLeftPanelCollapsed: (collapsed: boolean) => void;
   setParseOptions: (options: ParseOptions) => void;
   setEnableAutoUnescape: (enable: boolean) => void;
+  setEnableAutoUnicode: (enable: boolean) => void;
   setRevealPosition: (pos: Partial<RevealPosition>) => void;
   isNeedReveal: (scene: "editor" | "graph" | "table") => boolean;
   setEnableSyncScroll: (enable: boolean) => void;
@@ -131,6 +132,10 @@ export const useStatusStore = create<StatusState>()(
 
       setEnableAutoUnescape(enable: boolean) {
         set({ enableAutoUnescape: enable });
+      },
+
+      setEnableAutoUnicode(enable: boolean) {
+        set({ enableAutoUnicode: enable });
       },
 
       // set reveal position will cause:
