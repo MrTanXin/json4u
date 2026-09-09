@@ -32,6 +32,8 @@ export class Comparer {
     }, compareWait);
     this.main.listenOnScroll();
     this.secondary.listenOnScroll();
+    this.main.editor.onDidChangeModelContent(() => this.onEditorUpdated());
+    this.secondary.editor.onDidChangeModelContent(() => this.onEditorUpdated());
   }
 
   worker() {

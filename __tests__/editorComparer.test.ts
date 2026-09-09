@@ -13,10 +13,11 @@ describe("Comparer auto refresh", () => {
     let rightText = '{"value":1}';
     const main = createEditor('{"value":1}', compareTree);
     const secondary = createEditor(() => rightText, compareTree);
-    const comparer = new Comparer(main, secondary);
+    const comparer = new Comparer(main.wrapper, secondary.wrapper);
     const highlightDiff = vi.spyOn(comparer, "highlightDiff").mockImplementation(() => undefined);
 
-    comparer.onEditorUpdated();
+    main.notifyChange();
+    secondary.notifyChange();
     await vi.advanceTimersByTimeAsync(300);
     expect(compareTree).not.toHaveBeenCalled();
 
@@ -25,7 +26,7 @@ describe("Comparer auto refresh", () => {
     expect(highlightDiff).toHaveBeenCalledTimes(1);
 
     rightText = '{"value":2}';
-    comparer.onEditorUpdated();
+    secondary.notifyChange();
     await vi.advanceTimersByTimeAsync(299);
     expect(compareTree).toHaveBeenCalledTimes(1);
 
@@ -36,11 +37,18 @@ describe("Comparer auto refresh", () => {
 });
 
 function createEditor(text: string | (() => string), compareTree: ReturnType<typeof vi.fn>) {
-  return {
+  const onDidChangeModelContent = vi.fn();
+  const wrapper = {
     text: typeof text === "function" ? text : () => text,
     tree: {},
     isTreeValid: () => true,
     worker: () => ({ compareTree }),
     listenOnScroll: vi.fn(),
+    editor: { onDidChangeModelContent },
   } as unknown as EditorWrapper;
+
+  return {
+    wrapper,
+    notifyChange: () => onDidChangeModelContent.mock.calls[0][0](),
+  };
 }
