@@ -190,9 +190,13 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
 
   async compare() {
     const { translations: t, comparer } = get();
-    const { diffPairs, isTextCompare } = await comparer!.compare();
+    const result = await comparer!.compare();
+    if (!result) {
+      return;
+    }
+
+    const { diffPairs, isTextCompare } = result;
     const hasDiff = diffPairs.length > 0;
-    comparer!.highlightDiff(diffPairs, isTextCompare);
 
     if (hasDiff) {
       // @ts-ignore

@@ -153,6 +153,7 @@ export class EditorWrapper {
       getStatusState().setRevealPosition(newRevealPosition(tree.version ?? 0));
     }
 
+    getEditorState().comparer?.onEditorUpdated();
     console.l("set tree:", tree);
     return tree;
   }

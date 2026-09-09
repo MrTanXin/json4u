@@ -4,6 +4,14 @@ import { getStatusState } from "@/stores/statusStore";
 import { getInlineClass, getLineClass, getMarginClass, getMinimapColor, getOverviewRulerColor } from "./diffColor";
 import type { EditorWrapper, Kind } from "./editor";
 import { editorApi } from "./types";
+import { debounce, type DebouncedFunc } from "lodash-es";
+
+const compareWait = 300;
+
+interface CompareResult {
+  diffPairs: DiffPair[];
+  isTextCompare: boolean;
+}
 
 export class Comparer {
   main: EditorWrapper;
@@ -12,10 +20,16 @@ export class Comparer {
   rightDecorations?: editorApi.IEditorDecorationsCollection;
   leftBlankHunkIDs?: string[];
   rightBlankHunkIDs?: string[];
+  private comparisonActive = false;
+  private comparisonVersion = 0;
+  private refreshAfterEdit: DebouncedFunc<() => void>;
 
   constructor(main: EditorWrapper, secondary: EditorWrapper) {
     this.main = main;
     this.secondary = secondary;
+    this.refreshAfterEdit = debounce(() => {
+      void this.refresh(this.comparisonVersion);
+    }, compareWait);
     this.main.listenOnScroll();
     this.secondary.listenOnScroll();
   }
@@ -32,12 +46,50 @@ export class Comparer {
     return (kind === "main" ? this.main : this.secondary).editor;
   }
 
-  async compare() {
+  private async compareCurrent(): Promise<CompareResult> {
     const isTextCompare = this.enableTextCompare() || !(this.main.isTreeValid() && this.secondary.isTreeValid());
     const diffPairs = isTextCompare
       ? await this.worker().compareText(this.main.text(), this.secondary.text())
       : await this.worker().compareTree(this.main.tree, this.secondary.tree);
     return { diffPairs, isTextCompare };
+  }
+
+  async compare(): Promise<CompareResult | undefined> {
+    this.comparisonActive = true;
+    this.refreshAfterEdit.cancel();
+    const version = ++this.comparisonVersion;
+    const result = await this.compareCurrent();
+
+    // Ignore a result calculated before the editor was changed again.
+    if (version !== this.comparisonVersion) {
+      return undefined;
+    }
+
+    this.highlightDiff(result.diffPairs, result.isTextCompare);
+    return result;
+  }
+
+  onEditorUpdated() {
+    if (!this.comparisonActive) {
+      return;
+    }
+
+    // Invalidate an in-flight comparison and coalesce rapid edits into one refresh.
+    this.comparisonVersion++;
+    this.refreshAfterEdit();
+  }
+
+  private async refresh(version: number) {
+    if (!this.comparisonActive || version !== this.comparisonVersion) {
+      return;
+    }
+
+    const result = await this.compareCurrent();
+    if (!this.comparisonActive || version !== this.comparisonVersion) {
+      return;
+    }
+
+    this.highlightDiff(result.diffPairs, result.isTextCompare);
   }
 
   highlightDiff(diffPairs: DiffPair[], isTextCompare: boolean) {
