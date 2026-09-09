@@ -10,6 +10,7 @@ export const metadata = {
   - 跟进 issue [#6](https://github.com/MrTanXin/json4u/issues/6)：直接监听编辑器内容变化，确保差异标注能够刷新；
   - 修复 issue [#11](https://github.com/MrTanXin/json4u/issues/11)：合并过时的文本比较请求，避免慢比较和异步解析清除最新差异标注；
   - 文本比较自动刷新防抖调整为 30ms，减少编辑后的等待时间；
+  - 为大文本比较增加线性快速路径，避免极端输入触发长时间计算；
   - 单元测试失败后根据 GitHub Actions 日志定位并修复，当前测试已通过；
 - 2026-09-08:
   - 项目从原仓库 fork 至新项目；

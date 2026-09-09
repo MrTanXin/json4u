@@ -5,6 +5,8 @@ import { myersDiff } from "./myers";
 // lines can produce a quadratic number of candidate matches. Keep that worst
 // case from blocking the compare worker for a long time.
 const maxHistogramCandidates = 100_000;
+const maxHistogramTextLength = 128 * 1024;
+const maxHistogramLineCount = 2_000;
 const maxInlineFallbackLength = 32 * 1024;
 
 // stolen from https://github.com/octavore/delta/blob/master/lib/histogram.go
@@ -21,7 +23,12 @@ export function histogramDiff(a: string, b: string): DiffPair[] {
   const aa = a.split("\n");
   const bb = b.split("\n");
 
-  if (hasTooManyHistogramCandidates(aa, bb)) {
+  if (
+    a.length + b.length > maxHistogramTextLength ||
+    aa.length > maxHistogramLineCount ||
+    bb.length > maxHistogramLineCount ||
+    hasTooManyHistogramCandidates(aa, bb)
+  ) {
     return fastTextDiff(a, b);
   }
 

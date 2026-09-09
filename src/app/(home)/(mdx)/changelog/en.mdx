@@ -10,6 +10,7 @@ export const metadata = {
   - Followed up on issue [#6](https://github.com/MrTanXin/json4u/issues/6): listen directly for editor content changes to ensure diff highlights refresh;
   - Fixed issue [#11](https://github.com/MrTanXin/json4u/issues/11): coalesced stale text comparisons and prevented asynchronous parsing from clearing the latest diff highlights;
   - Reduced the text-comparison auto-refresh debounce to 30ms to shorten the wait after editing;
+  - Added a linear fast path for large text comparisons to avoid long calculations on pathological inputs;
   - Tracked the unit-test failure through the GitHub Actions logs, fixed the issues, and passed the checks;
 - 2026-09-08:
   - Forked the project into the new repository;
