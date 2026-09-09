@@ -20,6 +20,7 @@ import {
   ArrowLeftToLine,
   ArrowRightFromLine,
   Bug,
+  Languages,
   Text,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -51,6 +52,8 @@ export default function SideNav() {
     enableNestParse,
     enableAutoUnescape,
     setEnableAutoUnescape,
+    enableAutoUnicode,
+    setEnableAutoUnicode,
     setParseOptions,
     enableSyncScroll,
     setEnableSyncScroll,
@@ -67,6 +70,8 @@ export default function SideNav() {
         enableNestParse: !!parseOptions.nest,
         enableAutoUnescape: state._hasHydrated ? state.enableAutoUnescape : cc.enableAutoUnescape,
         setEnableAutoUnescape: state.setEnableAutoUnescape,
+        enableAutoUnicode: state._hasHydrated ? state.enableAutoUnicode : cc.enableAutoUnicode,
+        setEnableAutoUnicode: state.setEnableAutoUnicode,
         setParseOptions: state.setParseOptions,
         enableSyncScroll: state._hasHydrated ? state.enableSyncScroll : cc.enableSyncScroll,
         setEnableSyncScroll: state.setEnableSyncScroll,
@@ -119,6 +124,13 @@ export default function SideNav() {
             description={t("auto_unescape_desc")}
             isPressed={enableAutoUnescape}
             onPressedChange={(pressed) => setEnableAutoUnescape(pressed)}
+          />
+          <Toggle
+            icon={<Languages className="icon" />}
+            title={t("Auto Unicode")}
+            description={t("auto_unicode_desc")}
+            isPressed={enableAutoUnicode}
+            onPressedChange={(pressed) => setEnableAutoUnicode(pressed)}
           />
           <Toggle
             icon={<SquareStack className="icon" />}

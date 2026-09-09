@@ -23,6 +23,7 @@ const UNESCAPE_MAP: Record<string, string> = {
 
 const ESCAPE_RE = /[\\"\u0000-\u001F\/]/g;
 const UNESCAPE_RE = /(\\+)(.)/g;
+const HEX_RE = /^[0-9a-fA-F]{4}$/;
 
 export function escape(text: string): string {
   return text.replace(ESCAPE_RE, (ch) => ESCAPE_MAP[ch] || ch);
@@ -41,7 +42,7 @@ export function unescape(text: string): string {
 
 function isValidJSON(text: string): boolean {
   const errors: jsonc.ParseError[] = [];
-  jsonc.parse(text, undefined, errors);
+  jsonc.parse(text, errors);
   return errors.length === 0;
 }
 
@@ -51,7 +52,7 @@ function isValidJSON(text: string): boolean {
  */
 export function autoUnescape(text: string): string {
   const errors: jsonc.ParseError[] = [];
-  const value = jsonc.parse(text, undefined, errors);
+  const value = jsonc.parse(text, errors);
 
   // A JSON string containing another JSON document, e.g.
   // "{\"field\":\"value\"}".
@@ -69,4 +70,81 @@ export function autoUnescape(text: string): string {
   }
 
   return text;
+}
+
+function readUnicodeEscape(text: string, offset: number): { codeUnit: number; end: number } | undefined {
+  if (text[offset] !== "\\" || text[offset + 1] !== "u") {
+    return undefined;
+  }
+
+  const hex = text.slice(offset + 2, offset + 6);
+  if (!HEX_RE.test(hex)) {
+    return undefined;
+  }
+
+  return { codeUnit: Number.parseInt(hex, 16), end: offset + 6 };
+}
+
+/**
+ * Decodes valid Unicode escape sequences while respecting escaped backslashes.
+ * Unpaired surrogate code units and malformed sequences are kept unchanged.
+ */
+export function decodeUnicode(text: string): string {
+  const normalized = text;
+  let result = "";
+
+  for (let index = 0; index < normalized.length; ) {
+    if (normalized[index] !== "\\") {
+      result += normalized[index++];
+      continue;
+    }
+
+    const slashStart = index;
+    while (normalized[index] === "\\") {
+      index++;
+    }
+
+    const slashCount = index - slashStart;
+    const escape = slashCount % 2 === 1 ? readUnicodeEscape(normalized, index - 1) : undefined;
+    if (slashCount % 2 === 0 || !escape) {
+      // An even number of slashes means the final slash is escaped and the
+      // following text is literal. Malformed Unicode is preserved as-is.
+      result += "\\".repeat(slashCount);
+      continue;
+    }
+
+    // Keep the escaped backslash pairs and consume only the final slash as
+    // the Unicode escape marker.
+    result += "\\".repeat(slashCount - 1);
+
+    if (escape.codeUnit >= 0xd800 && escape.codeUnit <= 0xdbff) {
+      const nextEscape = readUnicodeEscape(normalized, escape.end);
+      if (nextEscape && nextEscape.codeUnit >= 0xdc00 && nextEscape.codeUnit <= 0xdfff) {
+        const codePoint = 0x10000 + ((escape.codeUnit - 0xd800) << 10) + (nextEscape.codeUnit - 0xdc00);
+        result += String.fromCodePoint(codePoint);
+        index = nextEscape.end;
+        continue;
+      }
+
+      result += "\\" + normalized.slice(index, escape.end);
+      index = escape.end;
+      continue;
+    }
+
+    if (escape.codeUnit >= 0xdc00 && escape.codeUnit <= 0xdfff) {
+      result += "\\" + normalized.slice(index, escape.end);
+    } else {
+      result += String.fromCharCode(escape.codeUnit);
+    }
+    index = escape.end;
+  }
+
+  return result;
+}
+
+/**
+ * Removes one escaped JSON layer and decodes the Unicode escapes in it.
+ */
+export function unicode(text: string): string {
+  return decodeUnicode(autoUnescape(text));
 }

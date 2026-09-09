@@ -43,6 +43,15 @@ test.describe("commands", () => {
     }
   });
 
+  test("unicode", async ({ page }) => {
+    const editor = await getEditor(page, { textarea: true, goto: true });
+    await editor.fill(String.raw`{\"message\":\"\\u4F60\\u597D\"}`, { force: true });
+
+    await clickCmd(page, "Unicode");
+    const text = await getEditorText(page);
+    await expect(text.replace(/\s/g, "")).toBe('{"message":"你好"}');
+  });
+
   test("sort", async ({ page }) => {
     const editor = await getEditor(page, { textarea: true, goto: true });
     await editor.fill('{ "a": 1, "c": 3, "b": 2 }', { force: true });
