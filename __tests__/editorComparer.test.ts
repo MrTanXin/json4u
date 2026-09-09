@@ -34,6 +34,36 @@ describe("Comparer auto refresh", () => {
     expect(compareTree).toHaveBeenCalledTimes(2);
     expect(highlightDiff).toHaveBeenCalledTimes(2);
   });
+
+  test("does not queue stale comparisons while the worker is busy", async () => {
+    vi.useFakeTimers();
+
+    let resolveFirst!: (value: []) => void;
+    const compareTree = vi
+      .fn()
+      .mockImplementationOnce(() => new Promise<[]>((resolve) => (resolveFirst = resolve)))
+      .mockResolvedValue([]);
+    let rightText = '{"value":1}';
+    const main = createEditor('{"value":1}', compareTree);
+    const secondary = createEditor(() => rightText, compareTree);
+    const comparer = new Comparer(main.wrapper, secondary.wrapper);
+    const highlightDiff = vi.spyOn(comparer, "highlightDiff").mockImplementation(() => undefined);
+
+    const comparePromise = comparer.compare();
+    expect(compareTree).toHaveBeenCalledTimes(1);
+
+    rightText = '{"value":2}';
+    secondary.notifyChange();
+    await vi.advanceTimersByTimeAsync(300);
+    expect(compareTree).toHaveBeenCalledTimes(1);
+
+    resolveFirst([]);
+    await vi.advanceTimersByTimeAsync(0);
+    await comparePromise;
+
+    expect(compareTree).toHaveBeenCalledTimes(2);
+    expect(highlightDiff).toHaveBeenCalledTimes(1);
+  });
 });
 
 function createEditor(text: string | (() => string), compareTree: ReturnType<typeof vi.fn>) {

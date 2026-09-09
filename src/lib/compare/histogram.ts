@@ -1,10 +1,16 @@
 import { classify, type DiffPair, newDiff } from "./diff";
 import { myersDiff } from "./myers";
 
+// Histogram matching is very effective for normal source files, but repeated
+// lines can produce a quadratic number of candidate matches. Keep that worst
+// case from blocking the compare worker for a long time.
+const maxHistogramCandidates = 100_000;
+const maxInlineFallbackLength = 32 * 1024;
+
 // stolen from https://github.com/octavore/delta/blob/master/lib/histogram.go
 // HistogramDiff uses the histogram diff algorithm to generate a line-based diff between two strings
 export function histogramDiff(a: string, b: string): DiffPair[] {
-  if (a.length + b.length === 0) {
+  if (a === b) {
     return [];
   } else if (a.length === 0) {
     return [{ right: newDiff(0, b.length, "ins") }];
@@ -14,7 +20,75 @@ export function histogramDiff(a: string, b: string): DiffPair[] {
 
   const aa = a.split("\n");
   const bb = b.split("\n");
+
+  if (hasTooManyHistogramCandidates(aa, bb)) {
+    return fastTextDiff(a, b);
+  }
+
   return new HistogramDiffer(aa, bb).solve();
+}
+
+function hasTooManyHistogramCandidates(aa: string[], bb: string[]) {
+  const occurrences = new Map<string, number>();
+
+  for (const line of bb) {
+    const key = line.trim();
+    occurrences.set(key, (occurrences.get(key) ?? 0) + 1);
+  }
+
+  let candidates = 0;
+  for (const line of aa) {
+    candidates += occurrences.get(line.trim()) ?? 0;
+    if (candidates > maxHistogramCandidates) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// Bounded fallback for pathological inputs. It keeps the common prefix and
+// suffix, so a small edit in a large document still gets a focused marker,
+// while avoiding the quadratic histogram search and expensive inline diff for
+// a very large replacement.
+function fastTextDiff(a: string, b: string): DiffPair[] {
+  let prefix = 0;
+  const prefixLength = Math.min(a.length, b.length);
+  while (prefix < prefixLength && a[prefix] === b[prefix]) {
+    prefix++;
+  }
+
+  let suffix = 0;
+  while (
+    suffix < a.length - prefix &&
+    suffix < b.length - prefix &&
+    a[a.length - suffix - 1] === b[b.length - suffix - 1]
+  ) {
+    suffix++;
+  }
+
+  const leftLength = a.length - prefix - suffix;
+  const rightLength = b.length - prefix - suffix;
+  const left = leftLength > 0 ? newDiff(prefix, leftLength, "del") : undefined;
+  const right = rightLength > 0 ? newDiff(prefix, rightLength, "ins") : undefined;
+
+  if (left && right && leftLength <= maxInlineFallbackLength && rightLength <= maxInlineFallbackLength) {
+    const { left: leftInlineDiffs, right: rightInlineDiffs } = classify(
+      myersDiff(a.slice(prefix, a.length - suffix || undefined), b.slice(prefix, b.length - suffix || undefined), {
+        maxEditLength: 100,
+      }),
+    );
+    left.inlineDiffs = leftInlineDiffs.map((diff) => ({
+      ...diff,
+      offset: diff.offset + prefix,
+    }));
+    right.inlineDiffs = rightInlineDiffs.map((diff) => ({
+      ...diff,
+      offset: diff.offset + prefix,
+    }));
+  }
+
+  return left || right ? [{ left, right }] : [];
 }
 
 // Histogram of lines.

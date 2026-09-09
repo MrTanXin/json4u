@@ -22,12 +22,18 @@ export class Comparer {
   rightBlankHunkIDs?: string[];
   private comparisonActive = false;
   private comparisonVersion = 0;
+  private compareInFlight?: {
+    version: number;
+    promise: Promise<CompareResult>;
+  };
+  private refreshScheduled = false;
   private refreshAfterEdit: DebouncedFunc<() => void>;
 
   constructor(main: EditorWrapper, secondary: EditorWrapper) {
     this.main = main;
     this.secondary = secondary;
     this.refreshAfterEdit = debounce(() => {
+      this.refreshScheduled = false;
       void this.refresh(this.comparisonVersion);
     }, compareWait);
     this.main.listenOnScroll();
@@ -50,8 +56,10 @@ export class Comparer {
 
   private async compareCurrent(): Promise<CompareResult> {
     const isTextCompare = this.enableTextCompare() || !(this.main.isTreeValid() && this.secondary.isTreeValid());
+    const mainText = this.main.text();
+    const secondaryText = this.secondary.text();
     const diffPairs = isTextCompare
-      ? await this.worker().compareText(this.main.text(), this.secondary.text())
+      ? await this.worker().compareText(mainText, secondaryText)
       : await this.worker().compareTree(this.main.tree, this.secondary.tree);
     return { diffPairs, isTextCompare };
   }
@@ -59,16 +67,20 @@ export class Comparer {
   async compare(): Promise<CompareResult | undefined> {
     this.comparisonActive = true;
     this.refreshAfterEdit.cancel();
-    const version = ++this.comparisonVersion;
-    const result = await this.compareCurrent();
+    this.refreshScheduled = false;
+    this.comparisonVersion++;
 
-    // Ignore a result calculated before the editor was changed again.
-    if (version !== this.comparisonVersion) {
-      return undefined;
+    // A compare can already be running because of an earlier edit. Wait for it
+    // and retry with the latest editor contents instead of queuing another
+    // request in the single compare worker.
+    while (this.comparisonActive) {
+      const result = await this.compareForVersion(this.comparisonVersion);
+      if (result) {
+        return result;
+      }
     }
 
-    this.highlightDiff(result.diffPairs, result.isTextCompare);
-    return result;
+    return undefined;
   }
 
   onEditorUpdated() {
@@ -78,6 +90,7 @@ export class Comparer {
 
     // Invalidate an in-flight comparison and coalesce rapid edits into one refresh.
     this.comparisonVersion++;
+    this.refreshScheduled = true;
     this.refreshAfterEdit();
   }
 
@@ -86,12 +99,56 @@ export class Comparer {
       return;
     }
 
-    const result = await this.compareCurrent();
-    if (!this.comparisonActive || version !== this.comparisonVersion) {
+    const result = await this.compareForVersion(version);
+    if (result) {
       return;
     }
 
+    // If the editor changed while the worker was busy, the edit handler may
+    // already have scheduled the next refresh. If it did not, continue with
+    // the newest version immediately so a stale result cannot leave the view
+    // without highlights.
+    if (this.comparisonActive && version !== this.comparisonVersion && !this.refreshScheduled) {
+      void this.refresh(this.comparisonVersion);
+    }
+  }
+
+  private async compareForVersion(version: number): Promise<CompareResult | undefined> {
+    if (!this.comparisonActive || version !== this.comparisonVersion) {
+      return undefined;
+    }
+
+    const request = this.compareInFlight ?? this.startCompare(version);
+    const result = await request.promise;
+
+    // Ignore results calculated against an older editor snapshot. The caller
+    // will either retry immediately (manual compare) or wait for the debounced
+    // refresh (editor update).
+    if (!this.comparisonActive || request.version !== this.comparisonVersion || version !== this.comparisonVersion) {
+      return undefined;
+    }
+
     this.highlightDiff(result.diffPairs, result.isTextCompare);
+    return result;
+  }
+
+  private startCompare(version: number) {
+    const request = {
+      version,
+      promise: this.compareCurrent(),
+    };
+    this.compareInFlight = request;
+    request.promise.then(
+      () => this.clearCompareInFlight(request),
+      () => this.clearCompareInFlight(request),
+    );
+    return request;
+  }
+
+  private clearCompareInFlight(request: { version: number; promise: Promise<CompareResult> }) {
+    if (this.compareInFlight === request) {
+      this.compareInFlight = undefined;
+    }
   }
 
   highlightDiff(diffPairs: DiffPair[], isTextCompare: boolean) {
@@ -256,7 +313,10 @@ function genBlankHunkDom() {
 }
 
 // Generate diff block highlights and inline highlights.
-function genHighlightDecorations(diffPairs: DiffPair[]): { left: Decoration[]; right: Decoration[] } {
+function genHighlightDecorations(diffPairs: DiffPair[]): {
+  left: Decoration[];
+  right: Decoration[];
+} {
   const leftHunks: Decoration[] = [];
   const rightHunks: Decoration[] = [];
   const leftDecorations: Decoration[] = [];
@@ -299,7 +359,10 @@ function mergeDecorations(decorations: Decoration[]): Decoration[] {
   return merged;
 }
 
-function genDecorations(diff: Diff | undefined): { hunk?: Decoration; inlines: Decoration[] } {
+function genDecorations(diff: Diff | undefined): {
+  hunk?: Decoration;
+  inlines: Decoration[];
+} {
   if (!diff) {
     return { inlines: [] };
   }
@@ -354,7 +417,11 @@ function newDecoration(range: Range, isInlineDiff: boolean, diffType: DiffType):
 }
 
 function rangeMinus(range: Range, n: number) {
-  return { ...range, startLineNumber: range.startLineNumber - n, endLineNumber: range.endLineNumber - n };
+  return {
+    ...range,
+    startLineNumber: range.startLineNumber - n,
+    endLineNumber: range.endLineNumber - n,
+  };
 }
 
 function countRange(range: Range) {

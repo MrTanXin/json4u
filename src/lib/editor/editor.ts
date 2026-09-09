@@ -13,7 +13,10 @@ import { InlayHintsProvider } from "./handler/inlayHintsProvider";
 import { editorApi, IPosition, IScrollEvent } from "./types";
 
 export type Kind = "main" | "secondary";
-type ScrollEvent = IScrollEvent & { _oldScrollTop: number; _oldScrollLeft: number };
+type ScrollEvent = IScrollEvent & {
+  _oldScrollTop: number;
+  _oldScrollLeft: number;
+};
 
 const parseWait = 300;
 
@@ -23,14 +26,18 @@ export class EditorWrapper {
   // Is it scrolling?
   scrolling: number;
   tree: Tree;
-  delayParseAndSet: DebouncedFunc<(text: string, extraOptions: ParseOptions, resetCursor: boolean) => void>;
+  delayParseAndSet: DebouncedFunc<
+    (text: string, extraOptions: ParseOptions, resetCursor: boolean, expectedEditorText?: string) => void
+  >;
 
   constructor(editor: editorApi.IStandaloneCodeEditor, kind: Kind) {
     this.editor = editor;
     this.kind = kind;
     this.scrolling = 0;
     this.tree = new Tree();
-    this.delayParseAndSet = debounce(this.parseAndSet, parseWait, { trailing: true });
+    this.delayParseAndSet = debounce(this.parseAndSet, parseWait, {
+      trailing: true,
+    });
   }
 
   init() {
@@ -128,7 +135,12 @@ export class EditorWrapper {
   setTree({ treeObject }: ParsedTree, resetCursor: boolean = true) {
     const tree = Tree.fromObject(treeObject);
     tree.needReset = resetCursor;
-    getEditorState().resetHighlight();
+    // Parsing after a normal editor change runs asynchronously with the
+    // comparison worker. Clearing decorations here can therefore erase a
+    // newer comparison result when parsing finishes later. Explicit commands
+    // still clear the old result through the default resetCursor=true path;
+    // automatic parsing keeps the comparer in charge of the latest result.
+    resetCursor && getEditorState().resetHighlight();
 
     this.tree = tree;
     getTreeState().setTree(tree, this.kind);
@@ -213,6 +225,7 @@ export class EditorWrapper {
     text: string,
     extraParseOptions?: ParseOptions,
     resetCursor: boolean = true,
+    expectedEditorText?: string,
   ): Promise<{ set: boolean; parse: boolean }> {
     const options = {
       ...getStatusState().parseOptions,
@@ -222,11 +235,18 @@ export class EditorWrapper {
 
     reportTextSize(text.length);
     const parsedTree = await this.worker().parseAndFormat(text, options);
+    // Do not let a slow parse started for an older editor version overwrite a
+    // newer edit or its comparison state.
+    if (expectedEditorText !== undefined && this.text() !== expectedEditorText) {
+      return { set: false, parse: false };
+    }
+
     const tree = this.setTree(parsedTree, resetCursor);
     return { set: true, parse: tree.valid() };
   }
 
-  async parseAndSetInput(text: string): Promise<{ set: boolean; parse: boolean }> {
+  async parseAndSetInput(text: string, resetCursor: boolean = true): Promise<{ set: boolean; parse: boolean }> {
+    const expectedEditorText = this.text();
     const { enableAutoUnescape, enableAutoUnicode } = getStatusState();
     let processedText = text;
 
@@ -238,7 +258,7 @@ export class EditorWrapper {
     }
 
     this.tree.text = processedText;
-    return this.parseAndSet(processedText);
+    return this.parseAndSet(processedText, {}, resetCursor, expectedEditorText);
   }
 
   listenOnChange() {
@@ -249,7 +269,7 @@ export class EditorWrapper {
       if (text !== prevText) {
         console.l("onChange:", ev.versionId);
         this.delayParseAndSet.cancel();
-        await this.delayParseAndSet(text, { format: false }, false);
+        await this.delayParseAndSet(text, { format: false }, false, text);
       } else {
         console.l("skip onChange:", ev.versionId);
       }
@@ -269,7 +289,9 @@ export class EditorWrapper {
         this.tree.text = text;
         // sometimes onChange will triggered before onDidPaste, so we need to cancel it
         this.delayParseAndSet.cancel();
-        await this.parseAndSetInput(text);
+        // This is part of the editor's normal change pipeline. Do not clear
+        // compare decorations after the compare worker has rendered them.
+        await this.parseAndSetInput(text, false);
       } else {
         console.l("skip onDidPaste:", versionId, text.length, text.slice(0, 20));
       }
