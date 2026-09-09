@@ -40,12 +40,16 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
 .env.local
 .env.development
 .env.production
 
 # vercel
 .vercel
+
+# local AI tool configuration
+.gemini/
 
 # typescript
 *.tsbuildinfo
