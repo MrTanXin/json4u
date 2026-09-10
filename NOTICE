@@ -1,0 +1,16 @@
+json4u
+
+Copyright 2022-Present loggerhead.
+Copyright 2026 MrTanXin for modifications introduced in this fork.
+
+This repository is a modified fork of loggerhead/json4u:
+https://github.com/loggerhead/json4u
+
+The original project and its original portions are attributed to loggerhead.
+Modifications and additions introduced in this repository are attributed to
+MrTanXin. The source code is licensed under the Apache License, Version 2.0;
+see the LICENSE file for the license text.
+
+Third-party dependencies and other separately distributed materials may be
+subject to their own licenses and attribution requirements. Those requirements
+remain applicable to the corresponding materials.

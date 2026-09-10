@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { loaderURL, vsURL } from "@/lib/editor/cdn";
 import { CookiesProvider } from "next-client-cookies/server";
 import { getLocale, getTranslations } from "next-intl/server";

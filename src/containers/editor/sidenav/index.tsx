@@ -34,6 +34,10 @@ import PopoverBtn, { popoverBtnClass } from "./PopoverButton";
 import SharePopover from "./SharePopover";
 import Toggle from "./Toggle";
 
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
+
 export default function SideNav() {
   const [transition, setTransition] = useState(false);
   useEffect(() => {

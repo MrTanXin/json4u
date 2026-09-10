@@ -1,3 +1,6 @@
+# Copyright 2026 MrTanXin.
+# SPDX-License-Identifier: Apache-2.0
+
 name: Deploy
 
 on:
@@ -61,6 +64,8 @@ jobs:
             .next/standalone \
             .next/static \
             public \
+            LICENSE \
+            NOTICE \
             runtime.dockerfile
           echo "产物大小: $(du -h release.tar.gz | cut -f1)"
 

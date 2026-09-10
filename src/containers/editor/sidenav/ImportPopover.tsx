@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { type MessageKey } from "@/global";

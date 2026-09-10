@@ -12,6 +12,10 @@ import { useShallow } from "zustand/shallow";
 import { example } from "./data";
 import { getInitialJSONFromSearch } from "./url";
 
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
+
 // 自托管时把打包好的 monaco 实例直接交给 loader，跳过 AMD 加载器和跨域往返；
 // 只有显式配置了 NEXT_PUBLIC_MONACO_CDN 才回退到 CDN 的 paths 方式。
 let monacoReady: Promise<void> | null = null;

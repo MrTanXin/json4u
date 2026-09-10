@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { env, isCN } from "@/lib/env";
 
 export const monacoVersion = "0.52.2";

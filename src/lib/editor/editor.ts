@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import type { RevealTarget } from "@/lib/graph/types";
 import { newRevealPosition } from "@/lib/graph/utils";
 import { ParseOptions, Tree } from "@/lib/parser";

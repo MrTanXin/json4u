@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { init as dbInit } from "@/lib/db/config";
 import { setupGlobalGraphStyle } from "@/lib/graph/style";
 import { setupGlobalTableStyle } from "@/lib/table/style";

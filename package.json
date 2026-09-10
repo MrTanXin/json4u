@@ -3,6 +3,7 @@
   "version": "3.7.3",
   "type": "module",
   "private": true,
+  "license": "Apache-2.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "next dev",

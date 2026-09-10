@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { type ParseOptions } from "@/lib/parser";
 import { get, set, del, type UseStore, createStore } from "idb-keyval";
 import Cookies from "js-cookie";

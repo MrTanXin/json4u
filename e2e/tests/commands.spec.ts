@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { test, expect, type Page } from "@playwright/test";
 import { clearEditor, getEditor, getEditorText, getMaxLineNumber } from "../helpers/utils";
 

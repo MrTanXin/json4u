@@ -110,4 +110,11 @@ I'm really excited that you are interested in contributing to JSON For You. Befo
 
 ## License
 
-[Apache](./LICENSE) License © 2022-Present [loggerhead](https://github.com/loggerhead)
+The source code in this repository is licensed under the [Apache License, Version 2.0](./LICENSE).
+
+This repository is a modified fork of [loggerhead/json4u](https://github.com/loggerhead/json4u).
+The original project and its original portions are attributed to [loggerhead](https://github.com/loggerhead).
+Modifications and additions introduced in this fork are attributed to [MrTanXin](https://github.com/MrTanXin).
+See [NOTICE](./NOTICE) for the attribution and redistribution information.
+
+Third-party dependencies and other separately distributed materials may be subject to their own licenses.

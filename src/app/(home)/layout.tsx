@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { Inter } from "next/font/google";
 import Footer from "@/containers/landing/Footer";
 import Header from "@/containers/landing/Header";

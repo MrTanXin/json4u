@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ViewSearchInput from "@/components/ui/search/ViewSearchInput";

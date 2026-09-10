@@ -1,3 +1,6 @@
+# Copyright 2026 MrTanXin.
+# SPDX-License-Identifier: Apache-2.0
+
 # 运行镜像：只装配已构建好的 standalone 产物，不在此阶段编译，
 # 因此在小内存服务器上也能秒级完成。
 FROM node:20-alpine
@@ -16,6 +19,7 @@ ENV NODE_ENV=production \
 COPY --chown=nextjs:nodejs .next/standalone ./
 COPY --chown=nextjs:nodejs .next/static ./.next/static
 COPY --chown=nextjs:nodejs public ./public
+COPY --chown=nextjs:nodejs LICENSE NOTICE ./
 
 USER nextjs
 EXPOSE 3000

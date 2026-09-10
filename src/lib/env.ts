@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 import packageJSON from "../../package.json";

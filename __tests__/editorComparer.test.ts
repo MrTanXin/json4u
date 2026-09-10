@@ -1,3 +1,5 @@
+// Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { Comparer } from "@/lib/editor/comparer";
 import type { EditorWrapper } from "@/lib/editor/editor";
 

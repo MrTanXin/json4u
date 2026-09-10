@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { type MessageKey } from "@/global";
 import { Comparer } from "@/lib/editor/comparer";
 import type { Kind, EditorWrapper } from "@/lib/editor/editor";

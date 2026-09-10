@@ -1,3 +1,5 @@
+// Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import { compareText } from "@/lib/compare";
 
 describe("text compare performance safeguards", () => {

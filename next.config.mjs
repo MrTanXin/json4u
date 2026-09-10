@@ -1,3 +1,6 @@
+// Copyright 2022-Present loggerhead.
+// Modifications Copyright 2026 MrTanXin.
+// SPDX-License-Identifier: Apache-2.0
 import NextBundleAnalyzer from "@next/bundle-analyzer";
 import createMDX from "@next/mdx";
 import createJiti from "jiti";
