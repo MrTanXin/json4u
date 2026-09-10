@@ -1,10 +1,10 @@
 import type { Diff, DiffPair, DiffType, Range } from "@/lib/compare";
 import { newRange } from "@/lib/compare";
 import { getStatusState } from "@/stores/statusStore";
+import { debounce, type DebouncedFunc } from "lodash-es";
 import { getInlineClass, getLineClass, getMarginClass, getMinimapColor, getOverviewRulerColor } from "./diffColor";
 import type { EditorWrapper, Kind } from "./editor";
 import { editorApi } from "./types";
-import { debounce, type DebouncedFunc } from "lodash-es";
 
 const compareWait = 30;
 
@@ -122,6 +122,15 @@ export class Comparer {
       refreshWaitMs: compareWait,
     });
     this.refreshAfterEdit();
+  }
+
+  stop() {
+    this.comparisonActive = false;
+    this.comparisonVersion++;
+    this.refreshAfterEdit.cancel();
+    this.refreshScheduled = false;
+    this.reset();
+    compareLog("stopped", { version: this.comparisonVersion });
   }
 
   private async refresh(version: number) {

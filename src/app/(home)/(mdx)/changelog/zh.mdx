@@ -12,6 +12,9 @@ export const metadata = {
   - 文本比较自动刷新防抖调整为 30ms，减少编辑后的等待时间；
   - 为大文本比较增加线性快速路径，避免极端输入触发长时间计算；
   - 单元测试失败后根据 GitHub Actions 日志定位并修复，当前测试已通过；
+  - 修复 issue [#12](https://github.com/MrTanXin/json4u/issues/12)：执行文本比较及自动刷新时保持编辑器光标位置；
+  - 修复 issue [#13](https://github.com/MrTanXin/json4u/issues/13)：手动开启文本比较后立即初始化差异标注，文本比较默认关闭；
+  - 修复 issue [#14](https://github.com/MrTanXin/json4u/issues/14)：关闭文本比较后清除差异标记，并取消过时的比较结果；
 - 2026-09-08:
   - 项目从原仓库 fork 至新项目；
 - 2025-10-26:

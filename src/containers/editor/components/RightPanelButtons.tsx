@@ -25,6 +25,13 @@ export default function RightPanelButtons({ viewMode }: { viewMode: ViewMode }) 
   );
   const hasHydrated = useStatusStore((state) => state._hasHydrated);
 
+  const handleTextCompareChange = (enable: boolean) => {
+    setEnableTextCompare(enable);
+    if (!enable) {
+      comparer?.stop();
+    }
+  };
+
   useEffect(() => {
     if (!hasHydrated || !enableTextCompare || !comparer) {
       return;
@@ -40,7 +47,7 @@ export default function RightPanelButtons({ viewMode }: { viewMode: ViewMode }) 
       {viewMode === ViewMode.Text && (
         <>
           <div className="flex items-center rounded-md pl-1 bg-muted text-zinc-600">
-            <Switch checked={enableTextCompare} onCheckedChange={setEnableTextCompare} />
+            <Switch checked={enableTextCompare} onCheckedChange={handleTextCompareChange} />
             <Button className="px-2" onClick={() => runCommand("compare")}>
               {t(enableTextCompare ? "TextCompare" : "compare")}
             </Button>

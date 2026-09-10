@@ -12,6 +12,9 @@ export const metadata = {
   - Reduced the text-comparison auto-refresh debounce to 30ms to shorten the wait after editing;
   - Added a linear fast path for large text comparisons to avoid long calculations on pathological inputs;
   - Tracked the unit-test failure through the GitHub Actions logs, fixed the issues, and passed the checks;
+  - Fixed issue [#12](https://github.com/MrTanXin/json4u/issues/12): preserve the editor cursor during manual and automatic text comparisons;
+  - Fixed issue [#13](https://github.com/MrTanXin/json4u/issues/13): initialize diff highlights immediately after text comparison is manually enabled, while keeping it disabled by default;
+  - Fixed issue [#14](https://github.com/MrTanXin/json4u/issues/14): clear diff markers and cancel stale comparison results when text comparison is disabled;
 - 2026-09-08:
   - Forked the project into the new repository;
 - 2025-10-26:

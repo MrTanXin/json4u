@@ -1,5 +1,5 @@
-import type { EditorWrapper } from "@/lib/editor/editor";
 import { Comparer } from "@/lib/editor/comparer";
+import type { EditorWrapper } from "@/lib/editor/editor";
 
 describe("Comparer auto refresh", () => {
   afterEach(() => {
@@ -63,6 +63,29 @@ describe("Comparer auto refresh", () => {
 
     expect(compareTree).toHaveBeenCalledTimes(2);
     expect(highlightDiff).toHaveBeenCalledTimes(1);
+  });
+
+  test("stops pending comparisons and clears highlights", async () => {
+    vi.useFakeTimers();
+
+    let resolveCompare!: (value: []) => void;
+    const compareTree = vi.fn().mockImplementation(() => new Promise<[]>((resolve) => (resolveCompare = resolve)));
+    const main = createEditor('{"value":1}', compareTree);
+    const secondary = createEditor('{"value":2}', compareTree);
+    const comparer = new Comparer(main.wrapper, secondary.wrapper);
+    const highlightDiff = vi.spyOn(comparer, "highlightDiff").mockImplementation(() => undefined);
+    const reset = vi.spyOn(comparer, "reset").mockImplementation(() => undefined);
+
+    const comparePromise = comparer.compare();
+    comparer.stop();
+    resolveCompare([]);
+
+    await comparePromise;
+    await vi.advanceTimersByTimeAsync(30);
+
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(highlightDiff).not.toHaveBeenCalled();
+    expect(compareTree).toHaveBeenCalledTimes(1);
   });
 });
 
