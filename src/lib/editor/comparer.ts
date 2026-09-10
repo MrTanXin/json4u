@@ -98,7 +98,7 @@ export class Comparer {
     // and retry with the latest editor contents instead of queuing another
     // request in the single compare worker.
     while (this.comparisonActive) {
-      const result = await this.compareForVersion(this.comparisonVersion);
+      const result = await this.compareForVersion(this.comparisonVersion, true);
       if (result) {
         return result;
       }
@@ -129,7 +129,7 @@ export class Comparer {
       return;
     }
 
-    const result = await this.compareForVersion(version);
+    const result = await this.compareForVersion(version, false);
     if (result) {
       return;
     }
@@ -143,7 +143,7 @@ export class Comparer {
     }
   }
 
-  private async compareForVersion(version: number): Promise<CompareResult | undefined> {
+  private async compareForVersion(version: number, revealFirstDiff: boolean): Promise<CompareResult | undefined> {
     if (!this.comparisonActive || version !== this.comparisonVersion) {
       return undefined;
     }
@@ -170,7 +170,7 @@ export class Comparer {
       return undefined;
     }
 
-    this.highlightDiff(result.diffPairs, result.isTextCompare);
+    this.highlightDiff(result.diffPairs, result.isTextCompare, revealFirstDiff);
     compareLog("highlights applied", {
       version,
       mode: result.isTextCompare ? "text" : "tree",
@@ -198,7 +198,7 @@ export class Comparer {
     }
   }
 
-  highlightDiff(diffPairs: DiffPair[], isTextCompare: boolean) {
+  highlightDiff(diffPairs: DiffPair[], isTextCompare: boolean, revealFirstDiff: boolean = true) {
     this.reset();
     this.genRanges(diffPairs);
 
@@ -207,9 +207,10 @@ export class Comparer {
     this.applyDecorations(decorations);
     isTextCompare && this.fillBlankHunkDoms(diffPairs);
 
-    // Scroll to the first diff pair.
-    const hasDiff = diffPairs.length > 0;
-    if (hasDiff) {
+    // Only a manual comparison should move focus to the first difference.
+    // Automatic refreshes run after every edit and must preserve the user's
+    // current cursor and selection.
+    if (revealFirstDiff && diffPairs.length > 0) {
       const { left, right } = diffPairs[0];
       left && this.main.revealOffset(left.offset);
       right && this.secondary.revealOffset(right.offset);

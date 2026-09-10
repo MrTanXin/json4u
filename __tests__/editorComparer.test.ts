@@ -24,6 +24,7 @@ describe("Comparer auto refresh", () => {
     await comparer.compare();
     expect(compareTree).toHaveBeenCalledTimes(1);
     expect(highlightDiff).toHaveBeenCalledTimes(1);
+    expect(highlightDiff).toHaveBeenLastCalledWith([], false, true);
 
     rightText = '{"value":2}';
     secondary.notifyChange();
@@ -33,6 +34,7 @@ describe("Comparer auto refresh", () => {
     await vi.advanceTimersByTimeAsync(1);
     expect(compareTree).toHaveBeenCalledTimes(2);
     expect(highlightDiff).toHaveBeenCalledTimes(2);
+    expect(highlightDiff).toHaveBeenLastCalledWith([], false, false);
   });
 
   test("does not queue stale comparisons while the worker is busy", async () => {
@@ -63,6 +65,7 @@ describe("Comparer auto refresh", () => {
 
     expect(compareTree).toHaveBeenCalledTimes(2);
     expect(highlightDiff).toHaveBeenCalledTimes(1);
+    expect(highlightDiff).toHaveBeenLastCalledWith([], false, true);
   });
 });
 
