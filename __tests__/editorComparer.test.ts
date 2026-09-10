@@ -72,7 +72,7 @@ function createEditor(text: string | (() => string), compareTree: ReturnType<typ
     text: typeof text === "function" ? text : () => text,
     tree: {},
     isTreeValid: () => true,
-    worker: () => ({ compareTree }),
+    worker: () => ({ compareTree, compareText: compareTree }),
     listenOnScroll: vi.fn(),
     editor: { onDidChangeModelContent },
   } as unknown as EditorWrapper;

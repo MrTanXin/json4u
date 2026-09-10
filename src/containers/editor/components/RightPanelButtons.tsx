@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ViewSearchInput from "@/components/ui/search/ViewSearchInput";
 import { Switch } from "@/components/ui/switch";
@@ -15,12 +16,24 @@ export default function RightPanelButtons({ viewMode }: { viewMode: ViewMode }) 
   const cc = useConfigFromCookies();
   const t = useTranslations();
   const runCommand = useEditorStore((state) => state.runCommand);
+  const comparer = useEditorStore((state) => state.comparer);
   const { enableTextCompare, setEnableTextCompare } = useStatusStore(
     useShallow((state) => ({
       enableTextCompare: state._hasHydrated ? state.enableTextCompare : cc.enableTextCompare,
       setEnableTextCompare: state.setEnableTextCompare,
     })),
   );
+  const hasHydrated = useStatusStore((state) => state._hasHydrated);
+
+  useEffect(() => {
+    if (!hasHydrated || !enableTextCompare || !comparer) {
+      return;
+    }
+
+    void comparer.compare().catch((error) => {
+      console.error("[json4u:compare] initial compare failed", error);
+    });
+  }, [comparer, enableTextCompare, hasHydrated]);
 
   return (
     <div className="flex items-center pl-2 ml-auto space-x-2">
