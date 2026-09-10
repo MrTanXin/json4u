@@ -98,7 +98,7 @@ export class Comparer {
     // and retry with the latest editor contents instead of queuing another
     // request in the single compare worker.
     while (this.comparisonActive) {
-      const result = await this.compareForVersion(this.comparisonVersion, true);
+      const result = await this.compareForVersion(this.comparisonVersion);
       if (result) {
         return result;
       }
@@ -129,7 +129,7 @@ export class Comparer {
       return;
     }
 
-    const result = await this.compareForVersion(version, false);
+    const result = await this.compareForVersion(version);
     if (result) {
       return;
     }
@@ -143,7 +143,7 @@ export class Comparer {
     }
   }
 
-  private async compareForVersion(version: number, revealFirstDiff: boolean): Promise<CompareResult | undefined> {
+  private async compareForVersion(version: number): Promise<CompareResult | undefined> {
     if (!this.comparisonActive || version !== this.comparisonVersion) {
       return undefined;
     }
@@ -170,7 +170,7 @@ export class Comparer {
       return undefined;
     }
 
-    this.highlightDiff(result.diffPairs, result.isTextCompare, revealFirstDiff);
+    this.highlightDiff(result.diffPairs, result.isTextCompare);
     compareLog("highlights applied", {
       version,
       mode: result.isTextCompare ? "text" : "tree",
@@ -198,7 +198,7 @@ export class Comparer {
     }
   }
 
-  highlightDiff(diffPairs: DiffPair[], isTextCompare: boolean, revealFirstDiff: boolean = true) {
+  highlightDiff(diffPairs: DiffPair[], isTextCompare: boolean) {
     this.reset();
     this.genRanges(diffPairs);
 
@@ -207,14 +207,8 @@ export class Comparer {
     this.applyDecorations(decorations);
     isTextCompare && this.fillBlankHunkDoms(diffPairs);
 
-    // Only a manual comparison should move focus to the first difference.
-    // Automatic refreshes run after every edit and must preserve the user's
-    // current cursor and selection.
-    if (revealFirstDiff && diffPairs.length > 0) {
-      const { left, right } = diffPairs[0];
-      left && this.main.revealOffset(left.offset);
-      right && this.secondary.revealOffset(right.offset);
-    }
+    // Comparing must not steal focus or move either editor's cursor/selection.
+    // This applies to both manual comparisons and automatic refreshes.
   }
 
   // Calculates the range of the diff in the editor and generates a region.
