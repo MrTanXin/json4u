@@ -31,7 +31,7 @@ export interface Config {
 
 export const defaultConfig: Config = {
   viewMode: ViewMode.Graph,
-  enableTextCompare: true,
+  enableTextCompare: false,
   rightPanelSize: 70,
   rightPanelCollapsed: false,
   leftPanelCollapsed: false,
