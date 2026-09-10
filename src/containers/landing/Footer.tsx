@@ -14,9 +14,7 @@ export default function Footer() {
   const items: FooterLinkProps[] = [
     { href: "https://www.trustpilot.com/review/json4u.com", title: t("Give a rating") },
     ...(isCN
-      ? [
-          { href: "https://github.com/MrTanXin/json4u/issues/new", title: t("Feedback") },
-        ]
+      ? [{ href: "https://github.com/MrTanXin/json4u/issues/new", title: t("Feedback") }]
       : [
           { href: "https://github.com/MrTanXin/json4u/issues/new", title: t("Feedback") },
           { href: "https://x.com/1oggerhead", title: <Twitter className="icon" /> },
