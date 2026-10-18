@@ -11,6 +11,7 @@ import { autoUnescape, decodeUnicode, escape, unicode, unescape } from "./comman
 import { jsonPath } from "./command/jsonPath";
 import { parseAndFormat } from "./command/parse";
 import { pythonDictToJSON } from "./command/pythonDictToJSON";
+import { toArray } from "./command/toArray";
 import { urlToJSON } from "./command/urlToJSON";
 import {
   clearGraphNodeSelected,
@@ -35,6 +36,7 @@ const worker = {
   autoUnescape,
   decodeUnicode,
   unicode,
+  toArray,
   pythonDictToJSON,
   urlToJSON,
   csv2json,

@@ -7,6 +7,7 @@ import { newRevealPosition } from "@/lib/graph/utils";
 import { GraphNodeId } from "@/lib/idgen";
 import type { ParseOptions } from "@/lib/parser";
 import type { FunctionKeys } from "@/lib/utils";
+import type { ArrayItemType } from "@/lib/worker/command/toArray";
 import { includes } from "lodash-es";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -55,6 +56,8 @@ export interface StatusState extends Config {
   setParseOptions: (options: ParseOptions) => void;
   setEnableAutoUnescape: (enable: boolean) => void;
   setEnableAutoUnicode: (enable: boolean) => void;
+  setEnableAutoArray: (enable: boolean) => void;
+  setAutoArrayType: (type: ArrayItemType) => void;
   setRevealPosition: (pos: Partial<RevealPosition>) => void;
   isNeedReveal: (scene: "editor" | "graph" | "table") => boolean;
   setEnableSyncScroll: (enable: boolean) => void;
@@ -139,6 +142,14 @@ export const useStatusStore = create<StatusState>()(
 
       setEnableAutoUnicode(enable: boolean) {
         set({ enableAutoUnicode: enable });
+      },
+
+      setEnableAutoArray(enable: boolean) {
+        set({ enableAutoArray: enable });
+      },
+
+      setAutoArrayType(type: ArrayItemType) {
+        set({ autoArrayType: type });
       },
 
       // set reveal position will cause:

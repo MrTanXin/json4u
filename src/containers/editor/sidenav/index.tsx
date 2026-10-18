@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/icons/Logo";
 import { Separator } from "@/components/ui/separator";
+import { type MessageKey } from "@/global";
 import { version } from "@/lib/env";
 import { cn } from "@/lib/utils";
+import { type ArrayItemType } from "@/lib/worker/command/toArray";
 import { useConfigFromCookies } from "@/stores/hook";
 import { useStatusStore } from "@/stores/statusStore";
 import {
   ArrowDownNarrowWide,
   Braces,
+  Brackets,
   Download,
   FileUp,
   CircleHelp,
@@ -38,6 +41,11 @@ import Toggle from "./Toggle";
 // Modifications Copyright 2026 MrTanXin.
 // SPDX-License-Identifier: Apache-2.0
 
+const arrayTypeLabels = {
+  number: "array_type_number",
+  string: "array_type_string",
+} as const satisfies Record<ArrayItemType, MessageKey>;
+
 export default function SideNav() {
   const [transition, setTransition] = useState(false);
   useEffect(() => {
@@ -58,6 +66,10 @@ export default function SideNav() {
     setEnableAutoUnescape,
     enableAutoUnicode,
     setEnableAutoUnicode,
+    enableAutoArray,
+    setEnableAutoArray,
+    autoArrayType,
+    setAutoArrayType,
     setParseOptions,
     enableSyncScroll,
     setEnableSyncScroll,
@@ -76,6 +88,10 @@ export default function SideNav() {
         setEnableAutoUnescape: state.setEnableAutoUnescape,
         enableAutoUnicode: state._hasHydrated ? state.enableAutoUnicode : cc.enableAutoUnicode,
         setEnableAutoUnicode: state.setEnableAutoUnicode,
+        enableAutoArray: state._hasHydrated ? state.enableAutoArray : cc.enableAutoArray,
+        setEnableAutoArray: state.setEnableAutoArray,
+        autoArrayType: state._hasHydrated ? state.autoArrayType : cc.autoArrayType,
+        setAutoArrayType: state.setAutoArrayType,
         setParseOptions: state.setParseOptions,
         enableSyncScroll: state._hasHydrated ? state.enableSyncScroll : cc.enableSyncScroll,
         setEnableSyncScroll: state.setEnableSyncScroll,
@@ -137,6 +153,14 @@ export default function SideNav() {
             onPressedChange={(pressed) => setEnableAutoUnicode(pressed)}
           />
           <Toggle
+            icon={<Brackets className="icon" />}
+            title={t("Auto Array")}
+            description={t("auto_array_desc", { type: t(arrayTypeLabels[autoArrayType]) })}
+            isPressed={enableAutoArray}
+            onPressedChange={(pressed) => setEnableAutoArray(pressed)}
+          />
+          {enableAutoArray && <ArrayTypeSelect type={autoArrayType} setType={setAutoArrayType} />}
+          <Toggle
             icon={<SquareStack className="icon" />}
             title={t("Nested Parse")}
             description={t("nested_parse_desc")}
@@ -177,6 +201,28 @@ export default function SideNav() {
           />
         </ul>
       </nav>
+    </div>
+  );
+}
+
+// Only shown when the side nav is expanded, since there is no room for it when collapsed.
+function ArrayTypeSelect({ type, setType }: { type: ArrayItemType; setType: (type: ArrayItemType) => void }) {
+  const t = useTranslations();
+
+  return (
+    <div className="hidden group-data-[expanded=true]:flex justify-center gap-1 text-xs">
+      {(Object.keys(arrayTypeLabels) as ArrayItemType[]).map((key) => (
+        <button
+          key={key}
+          className={cn(
+            "h-5 px-1.5 rounded-sm text-nowrap hover:bg-muted",
+            key === type ? "bg-muted text-primary" : "text-muted-foreground",
+          )}
+          onClick={() => setType(key)}
+        >
+          {t(arrayTypeLabels[key])}
+        </button>
+      ))}
     </div>
   );
 }
