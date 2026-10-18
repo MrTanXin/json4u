@@ -10,7 +10,7 @@ The best JSON visualization and processing tool.
 <br />
 
 <p align="center">
-<a href="https://json4u.com/editor"><b>Try it now</b></a> · <a href="https://json4u.cn">中文网址</a>
+<a href="https://json.dududu.xin/editor"><b>Try it now</b></a>
 </p>
 
 ## Features
@@ -74,7 +74,7 @@ The best JSON visualization and processing tool.
 
 ## Setup
 
-1. `git clone --depth 100 https://github.com/loggerhead/json4u`
+1. `git clone --depth 100 https://github.com/MrTanXin/json4u`
 2. Run `pnpm install` in repo's root folder.
 3. Run `pnpm dev` to run the development server.
 4. Open [http://localhost.json4u.com:3000](http://localhost.json4u.com:3000) with your browser to see the result.

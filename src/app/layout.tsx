@@ -14,11 +14,6 @@ export async function generateMetadata() {
     metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
     alternates: {
       canonical: "/",
-      languages: {
-        en: "https://json4u.com",
-        zh: "https://json4u.cn",
-        "x-default": "https://json4u.com",
-      },
     },
     applicationName: t("name"),
     title: {
