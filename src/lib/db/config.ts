@@ -2,6 +2,7 @@
 // Modifications Copyright 2026 MrTanXin.
 // SPDX-License-Identifier: Apache-2.0
 import { type ParseOptions } from "@/lib/parser";
+import { type ArrayItemType } from "@/lib/worker/command/toArray";
 import { get, set, del, type UseStore, createStore } from "idb-keyval";
 import Cookies from "js-cookie";
 import { type StateStorage } from "zustand/middleware";
@@ -27,6 +28,8 @@ export interface Config {
   prettyFormat: boolean;
   enableAutoUnescape: boolean;
   enableAutoUnicode: boolean;
+  enableAutoArray: boolean; // convert non-JSON text (e.g. copied from Excel) to an array
+  autoArrayType: ArrayItemType;
   enableSyncScroll: boolean; // the left and right side editors scroll in sync
   isTouchpad?: boolean;
   fixSideNav: boolean;
@@ -47,6 +50,8 @@ export const defaultConfig: Config = {
   prettyFormat: true,
   enableAutoUnescape: true,
   enableAutoUnicode: true,
+  enableAutoArray: false,
+  autoArrayType: "number",
   enableSyncScroll: true,
   isTouchpad: undefined,
   fixSideNav: false,

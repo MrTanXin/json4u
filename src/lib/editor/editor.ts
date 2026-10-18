@@ -264,7 +264,7 @@ export class EditorWrapper {
 
   async parseAndSetInput(text: string, resetCursor: boolean = true): Promise<{ set: boolean; parse: boolean }> {
     const expectedEditorText = this.text();
-    const { enableAutoUnescape, enableAutoUnicode } = getStatusState();
+    const { enableAutoUnescape, enableAutoUnicode, enableAutoArray, autoArrayType } = getStatusState();
     let processedText = text;
 
     if (enableAutoUnescape) {
@@ -272,6 +272,9 @@ export class EditorWrapper {
     }
     if (enableAutoUnicode) {
       processedText = await this.worker().decodeUnicode(processedText);
+    }
+    if (enableAutoArray) {
+      processedText = await this.worker().toArray(processedText, autoArrayType);
     }
 
     this.tree.text = processedText;
