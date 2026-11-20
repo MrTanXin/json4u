@@ -1,6 +1,8 @@
 {
   "": "",
   "Loading": "加载中",
+  "EditorLoadFailed": "编辑器加载未完成，请检查网络连接后重试。",
+  "Retry": "重试",
   "TextCompare": "文本比较",
   "compare": "比较",
   "text": "文本",

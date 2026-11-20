@@ -1,6 +1,8 @@
 {
   "": "",
   "Loading": "Loading",
+  "EditorLoadFailed": "The editor could not load. Check your connection and try again.",
+  "Retry": "Retry",
   "TextCompare": "Text Compare",
   "compare": "Compare",
   "text": "text",
