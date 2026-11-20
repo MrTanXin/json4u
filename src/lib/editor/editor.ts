@@ -9,7 +9,6 @@ import { type ParsedTree } from "@/lib/worker/command/parse";
 import { getEditorState } from "@/stores/editorStore";
 import { getStatusState, type TreeEdit } from "@/stores/statusStore";
 import { getTreeState } from "@/stores/treeStore";
-import { sendGAEvent } from "@next/third-parties/google";
 import { debounce, type DebouncedFunc } from "lodash-es";
 import { HoverProvider } from "./handler/hoverProvider";
 import { InlayHintsProvider } from "./handler/inlayHintsProvider";
@@ -237,7 +236,6 @@ export class EditorWrapper {
       kind: this.kind,
     };
 
-    reportTextSize(text.length);
     const parsedTree = await this.worker().parseAndFormat(text, options);
     // Do not let a slow parse started for an older editor version overwrite a
     // newer edit or its comparison state.
@@ -423,20 +421,4 @@ export class EditorWrapper {
   scrollable() {
     return this.scrolling && getStatusState().enableSyncScroll;
   }
-}
-
-function reportTextSize(size: number) {
-  let kind = "";
-
-  if (size <= 10 * 1024) {
-    kind = "(0, 10kb]";
-  } else if (size <= 100 * 1024) {
-    kind = "(10kb, 100kb]";
-  } else if (size <= 500 * 1024) {
-    kind = "(100kb, 500kb]";
-  } else {
-    kind = "(500kb, +∞)";
-  }
-
-  sendGAEvent("event", "text_size", { kind });
 }
