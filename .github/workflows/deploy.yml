@@ -34,6 +34,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: 检查 CDN 刷新凭证
+        id: cdn-refresh
+        env:
+          ALIBABA_CLOUD_ACCESS_KEY_ID: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+          ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+        run: |
+          if [[ -z "$ALIBABA_CLOUD_ACCESS_KEY_ID" && -z "$ALIBABA_CLOUD_ACCESS_KEY_SECRET" ]]; then
+            echo "::warning::未配置阿里云 CDN 刷新凭证，本次部署跳过 CDN 刷新。"
+            exit 0
+          fi
+          if [[ -z "$ALIBABA_CLOUD_ACCESS_KEY_ID" || -z "$ALIBABA_CLOUD_ACCESS_KEY_SECRET" ]]; then
+            echo "::error::请同时配置阿里云 AccessKey ID 和 AccessKey Secret。"
+            exit 1
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
       - uses: pnpm/action-setup@v4
         with:
           version: 10.14.0
@@ -149,6 +165,29 @@ jobs:
           echo "==> 部署完成"
           docker ps --format '{{.Names}} | {{.Status}}'
           REMOTE
+
+      - name: 安装阿里云 CLI
+        if: steps.cdn-refresh.outputs.enabled == 'true'
+        run: |
+          set -euo pipefail
+          cli_dir=$(mktemp -d "$RUNNER_TEMP/aliyun-cli.XXXXXX")
+          archive="$cli_dir/aliyun-cli.tgz"
+          curl -fsSL --retry 3 --max-time 90 -o "$archive" \
+            https://github.com/aliyun/aliyun-cli/releases/download/v3.5.4/aliyun-cli-linux-3.5.4-amd64.tgz
+          printf '%s  %s\n' e1eefcbbe9d772d61f770d4af8595e7297e081a0348b096765d2c41e581c3e72 "$archive" |
+            sha256sum --check --status
+          tar -xzf "$archive" -C "$cli_dir" aliyun
+          echo "$cli_dir" >> "$GITHUB_PATH"
+
+      - name: 刷新阿里云 CDN 页面缓存
+        if: steps.cdn-refresh.outputs.enabled == 'true'
+        timeout-minutes: 9
+        env:
+          ALIBABA_CLOUD_ACCESS_KEY_ID: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_ID }}
+          ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${{ secrets.ALIBABA_CLOUD_ACCESS_KEY_SECRET }}
+          ALIBABA_CLOUD_IGNORE_PROFILE: "TRUE"
+          ALIBABA_CLOUD_REGION_ID: cn-hangzhou
+        run: bash .github/scripts/refresh-cdn.sh
 
       - name: 公网访问验证
         run: |
