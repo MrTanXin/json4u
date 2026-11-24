@@ -30,7 +30,7 @@
   "download": "Download",
   "preview": "Preview",
   "Auto Format": "Format",
-  "auto_format_desc": "Try to auto format even when the text is not a valid JSON while pasting text or drag-and-dropping a file into the editor.",
+  "auto_format_desc": "Automatically format after pasting text, dropping a file, or using Replace or Replace All in the editor. Formatting also works with non-JSON text.",
   "Auto Unescape": "Unescape",
   "auto_unescape_desc": "Automatically detect and remove one layer of string escaping when pasting text or importing a file.",
   "Auto Unicode": "Unicode Conversion",
