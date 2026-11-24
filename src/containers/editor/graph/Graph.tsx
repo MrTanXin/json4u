@@ -6,6 +6,7 @@ import { useStatusStore } from "@/stores/statusStore";
 import { Background, Controls, ReactFlow, ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { debounce } from "lodash-es";
+import { useTheme } from "next-themes";
 import MouseButton from "./MouseButton";
 import { ObjectNode, RootNode, VirtualTargetNode } from "./Node";
 import { useRevealNode, useViewportChange } from "./useViewportChange";
@@ -24,6 +25,7 @@ export default function Graph() {
 function LayoutGraph() {
   const ref = useRef<HTMLDivElement>(null);
   const isTouchpad = useStatusStore((state) => state.isTouchpad);
+  const { resolvedTheme } = useTheme();
 
   // The graph will render three times because:
   // 1. Modify text in the editor will cause `treeVersion` to change.
@@ -41,7 +43,7 @@ function LayoutGraph() {
       minZoom={config.minZoom}
       maxZoom={config.maxZoom}
       reconnectRadius={config.reconnectRadius}
-      colorMode={config.colorMode}
+      colorMode={resolvedTheme === "dark" ? "dark" : "light"}
       attributionPosition={config.attributionPosition}
       nodeTypes={{
         object: ObjectNode,

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import Link from "next/link";
 import LinkButton, { type Href } from "@/components/LinkButton";
+import ThemePicker from "@/components/ThemePicker";
 import GitHub from "@/components/icons/GitHub";
 import Logo from "@/components/icons/Logo";
 import { Badge } from "@/components/ui/badge";
@@ -19,13 +20,13 @@ export default function Header() {
   ];
 
   return (
-    <div className="sticky top-0 z-10 bg-white flex md:h-12 h-14 items-center justify-center w-full border-b">
+    <div className="sticky top-0 z-10 bg-background flex md:h-12 h-14 items-center justify-center w-full border-b">
       <nav className="flex items-center w-full h-full max-w-page-header md:px-8 px-4">
         <Link prefetch={false} href="/" className="flex items-center gap-2 pointer mr-2">
           <Logo />
           <span className="font-bold">{"JSON For You"}</span>
         </Link>
-        <Badge variant="secondary">{`v${version}`}</Badge>
+        <Badge className="hidden sm:inline-flex" variant="secondary">{`v${version}`}</Badge>
         <div className="md:flex hidden items-center gap-4 ml-4">
           {items.map((item) => (
             <Link
@@ -42,7 +43,8 @@ export default function Header() {
           ))}
         </div>
         <div className="ml-auto" />
-        <div className="flex items-center h-full py-3 gap-4">
+        <div className="flex items-center h-full py-3 gap-1 sm:gap-4">
+          <ThemePicker />
           <LinkButton href="/editor" variant="default">
             {t("Editor")}
           </LinkButton>

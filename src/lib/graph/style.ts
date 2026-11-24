@@ -1,8 +1,8 @@
 import type { CSSProperties } from "react";
 import type { GraphNodeStyle } from "./types";
 
-const highlightColor = "rgb(4, 81, 165)";
-const selectedColor = "rgb(163, 21, 21)";
+const highlightColor = "var(--hl-string)";
+const selectedColor = "var(--hl-key)";
 
 // Style applied to a graph node when it is explicitly selected by the user, usually via a direct click.
 const nodeSelectedStyle: CSSProperties = { borderColor: selectedColor, borderWidth: 1 };

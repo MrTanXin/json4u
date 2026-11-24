@@ -54,11 +54,10 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} suppressHydrationWarning>
       <body>
-        {/* TODO: support dark theme */}
-        <ThemeProvider defaultTheme="light" disableTransitionOnChange>
+        <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem disableTransitionOnChange>
           <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+          <Toaster richColors position="bottom-right" />
         </ThemeProvider>
-        <Toaster richColors position="bottom-right" />
       </body>
     </html>
   );

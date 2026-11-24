@@ -46,7 +46,7 @@ const CommandList = React.forwardRef<
   <CommandPrimitive.List
     ref={ref}
     className={cn(
-      "w-full max-h-search-h overflow-y-auto overflow-x-hidden absolute z-10 top-full bg-white rounded shadow-search mt-2 group-data-[open=false]:hidden group-data-[open=true]:animate-in group-data-[open=false]:animate-out group-data-[open=false]:fade-out-0 group-data-[open=true]:fade-in-0 group-data-[open=false]:zoom-out-95 group-data-[open=true]:zoom-in-95",
+      "w-full max-h-search-h overflow-y-auto overflow-x-hidden absolute z-10 top-full bg-popover text-popover-foreground rounded shadow-search mt-2 group-data-[open=false]:hidden group-data-[open=true]:animate-in group-data-[open=false]:animate-out group-data-[open=false]:fade-out-0 group-data-[open=true]:fade-in-0 group-data-[open=false]:zoom-out-95 group-data-[open=true]:zoom-in-95",
       className,
     )}
     {...props}

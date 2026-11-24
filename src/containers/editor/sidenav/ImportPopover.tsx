@@ -26,7 +26,7 @@ export default function ImportPopover() {
       optionsNode={fileType === "CSV" && <CsvOptions checked={csvWithHeader} setChecked={setCsvWithHeader} />}
       extraNode={
         <FileUploader handleChange={onFile} types={["txt", "json", "csv"]} dropMessageStyle={{ color: "transparent" }}>
-          <div className="flex items-center justify-center border border-dashed hover:cursor-pointer hover:border-rose-400 w-full h-64 mt-2 text-zinc-500">
+          <div className="flex items-center justify-center border border-dashed hover:cursor-pointer hover:border-rose-400 w-full h-64 mt-2 text-muted-foreground">
             <p>{t("drop file")}</p>
           </div>
         </FileUploader>
@@ -34,7 +34,7 @@ export default function ImportPopover() {
     >
       <span className="mr-1">{t("file type")}</span>
       <FileTypeSelect fileType={fileType} setFileType={setFileType} />
-      {fileType !== "JSON" && <span className="ml-auto text-zinc-500">{t("convert to JSON")}</span>}
+      {fileType !== "JSON" && <span className="ml-auto text-muted-foreground">{t("convert to JSON")}</span>}
     </BasePopover>
   );
 }

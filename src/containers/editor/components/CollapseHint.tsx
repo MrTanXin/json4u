@@ -15,7 +15,7 @@ export function CollapseHint({ side }: { side: "left" | "right" }) {
     <div
       title={t("collapse_hint")}
       className={cn(
-        "absolute top-0 h-full w-12 bg-gray-200/70 flex items-center justify-center text-xs text-gray-600 z-10 writing-mode-vertical-rl text-orientation-mixed whitespace-pre-line",
+        "absolute top-0 h-full w-12 bg-muted/90 flex items-center justify-center text-xs text-muted-foreground z-10 writing-mode-vertical-rl text-orientation-mixed whitespace-pre-line",
         side === "left" ? "left-0" : "right-0",
       )}
     >

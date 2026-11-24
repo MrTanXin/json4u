@@ -19,7 +19,6 @@ export const config: Readonly<Record<string, any>> = {
   minZoom: 0.5,
   maxZoom: 2,
   reconnectRadius: 20,
-  colorMode: "light",
   attributionPosition: "bottom-left",
   imageWidth: 1024,
   imageHeight: 768,

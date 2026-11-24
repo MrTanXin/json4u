@@ -11,7 +11,7 @@ export default function Logo({ size, className }: LogoProps) {
       src="/icon.svg"
       width={size}
       height={size}
-      className={cn("max-w-full max-h-full", className)}
+      className={cn("max-w-full max-h-full dark:invert", className)}
       alt="JSON For You logo"
     />
   );

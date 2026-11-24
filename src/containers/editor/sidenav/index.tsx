@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ThemePicker from "@/components/ThemePicker";
 import Logo from "@/components/icons/Logo";
 import { Separator } from "@/components/ui/separator";
 import { type MessageKey } from "@/global";
@@ -183,6 +184,9 @@ export default function SideNav() {
           />
         </ul>
         <ul className="flex flex-col px-1 gap-y-2">
+          <li>
+            <ThemePicker sidebar />
+          </li>
           <LinkButton icon={<CircleHelp className="icon" />} title={t("Tutorial")} href={"/tutorial"} newWindow />
           <LinkButton
             icon={<Bug className="icon" />}

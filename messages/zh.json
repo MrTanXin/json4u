@@ -1,4 +1,8 @@
 {
+  "Theme": "主题",
+  "LightTheme": "浅色",
+  "DarkTheme": "深色",
+  "SystemTheme": "跟随系统",
   "": "",
   "Loading": "加载中",
   "EditorLoadFailed": "编辑器加载未完成，请检查网络连接后重试。",

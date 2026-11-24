@@ -2,7 +2,7 @@ import { getLocale } from "next-intl/server";
 
 function getRelativePath(dir: string) {
   const p = dir.split("(mdx)")[1];
-  return "." + p;
+  return "." + p.replace(/\\/g, "/");
 }
 
 export async function mdxGenMetadata(dir: string) {

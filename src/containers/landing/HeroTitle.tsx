@@ -19,8 +19,8 @@ export default function Title() {
         </Typography>
         <Typography
           variant="h5"
-          className="max-w-xl mb-8"
-          style={{ fontFamily: '"Noto Sans", "Noto Sans Placeholder", sans-serif', color: "#555a6a" }}
+          className="max-w-xl mb-8 text-muted-foreground"
+          style={{ fontFamily: '"Noto Sans", "Noto Sans Placeholder", sans-serif' }}
         >
           {t("landing_subtitle")}
         </Typography>

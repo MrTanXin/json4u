@@ -59,7 +59,7 @@ function CloseButton() {
       className="ml-1 px-1 hover:bg-accent hover:text-accent-foreground"
       onClick={() => setCommandMode(undefined)}
     >
-      <X style={{ width: 12, height: 12, color: "#47474780" }} />
+      <X className="size-3 text-muted-foreground" />
     </button>
   );
 }

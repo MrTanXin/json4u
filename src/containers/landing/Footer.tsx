@@ -24,9 +24,9 @@ export default function Footer() {
 
   return (
     <footer className="flex sm:h-12 min-h-12 py-4 sm:py-0 items-center justify-center w-full border-t">
-      <div className="flex flex-col sm:flex-row items-center w-full max-w-page-header sm:px-8 px-4 gap-y-3 sm:gap-x-8 text-xs text-slate-500">
+      <div className="flex flex-col sm:flex-row items-center w-full max-w-page-header sm:px-8 px-4 gap-y-3 sm:gap-x-8 text-xs text-muted-foreground">
         <div className="flex items-center gap-2 shrink-0">
-          <Logo className="w-[20px] h-[20px] text-slate-500" />
+          <Logo className="w-[20px] h-[20px] text-muted-foreground" />
           <span className="whitespace-nowrap">{`© ${new Date().getFullYear()} JSON For You`}</span>
         </div>
         <div className="flex items-center gap-4 sm:gap-8 sm:ml-0">
@@ -79,7 +79,7 @@ function FooterLink({ href, title, nofollow }: FooterLinkProps) {
       href={href as Href}
       target={href.startsWith("/") ? "" : "_blank"}
       rel={nofollow ? "nofollow noopener" : "noopener"}
-      className="pointer block w-fit hover:text-slate-900"
+      className="pointer block w-fit hover:text-foreground"
     >
       {title}
     </Link>
