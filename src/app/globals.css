@@ -56,6 +56,8 @@
     --max-value-length: 500px;
 
     --tbl-border: #00000040;
+    --tbl-header: #d6d3d1;
+    --tbl-header-alt: #e5e7eb;
     --landing-grid: #eee;
     --landing-dot: #91919a;
 
@@ -116,6 +118,8 @@
     --kbd-bg-color: #202b3d;
     --search-hl-color: #543d23;
     --tbl-border: #94a3b84d;
+    --tbl-header: #172234;
+    --tbl-header-alt: #1e2a3e;
     --landing-grid: #253249;
     --landing-dot: #64748b;
 
@@ -412,6 +416,14 @@ https://stackoverflow.com/questions/47017753/monaco-editor-dynamically-resizable
 
 .tbl-header {
   font-weight: 400;
+}
+
+:where(.tbl-header) {
+  background-color: var(--tbl-header);
+}
+
+:where(.tbl-header-alt) {
+  background-color: var(--tbl-header-alt);
 }
 
 .tbl-value {

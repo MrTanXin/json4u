@@ -16,8 +16,6 @@ export const cellClassMap: Record<CellType, string> = {
   dummyValue: "tbl-value",
 };
 
-export const headerBgClassNames = ["bg-stone-300", "bg-gray-200"];
-
 /**
  * Global style properties used for layout calculations. These values are crucial for determining
  * the size of cells and the overall dimensions of the table.

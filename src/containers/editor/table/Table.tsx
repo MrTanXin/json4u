@@ -68,7 +68,7 @@ export function Table() {
           ))}
         </div>
       </div>
-      <Background />
+      <Background className="dark:opacity-40" />
     </div>
   );
 }

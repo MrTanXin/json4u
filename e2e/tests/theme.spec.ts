@@ -70,3 +70,18 @@ test("updates both Monaco panes and their comparison markers without replacing e
     after: '{\n  "mode": "text",\n  "limit": 50\n}',
   });
 });
+
+test("updates both levels of table key backgrounds when the theme changes", async ({ page }) => {
+  await getEditor(page, { goto: true, needTutorial: true });
+  await page.getByRole("tab", { name: /^(table|表)$/i }).click();
+
+  const rootKey = page.locator("#right-panel .tbl-header", { hasText: /^Aidan Gillen$/ });
+  const nestedKey = page.locator("#right-panel .tbl-header", { hasText: /^array$/ }).first();
+  await expect(rootKey).toHaveCSS("background-color", "rgb(214, 211, 209)");
+  await expect(nestedKey).toHaveCSS("background-color", "rgb(229, 231, 235)");
+
+  await chooseTheme(page, /^(Dark|深色)$/);
+  await expect(rootKey).toHaveCSS("background-color", "rgb(23, 34, 52)");
+  await expect(nestedKey).toHaveCSS("background-color", "rgb(30, 42, 62)");
+  await expect(rootKey).toHaveCSS("color", "rgb(156, 220, 254)");
+});
