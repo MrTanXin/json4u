@@ -63,12 +63,14 @@ test.describe("format after find and replace", () => {
   });
 
   test("formats a single keyboard replacement without decoding Unicode escapes", async ({ page }) => {
+    await page.keyboard.press("Home");
+    await page.keyboard.insertText(" ");
     await page.keyboard.press("ControlOrMeta+f");
     await page.getByRole("button", { name: "Toggle Replace" }).click();
     await page.getByRole("textbox", { name: "Find", exact: true }).fill("1,");
     const replacement = page.getByRole("textbox", { name: "Replace", exact: true });
     await replacement.fill("2,");
-    await expect.poll(() => getEditorText(page)).toBe(compactJson);
+    await expect.poll(() => getEditorText(page)).toBe(" " + compactJson);
 
     await replacement.press("Enter");
     await expect.poll(() => getEditorText(page)).toContain('"first": 2');
@@ -79,7 +81,10 @@ test.describe("format after find and replace", () => {
   for (const format of [true, false]) {
     test("replaces all matches with Format " + (format ? "on" : "off"), async ({ page }) => {
       if (!format) {
-        await page.getByRole("button", { name: "Format", exact: true }).click();
+        const formatToggle = page.getByRole("button", { name: /^(Format|格式化)$/ });
+        await expect(formatToggle).toHaveAttribute("aria-pressed", "true");
+        await formatToggle.click();
+        await expect(formatToggle).toHaveAttribute("aria-pressed", "false");
       }
       await page.evaluate(() => window.monacoApi.main.getAction("editor.action.startFindReplaceAction")?.run());
       await page.getByRole("textbox", { name: "Find", exact: true }).fill("1,");
