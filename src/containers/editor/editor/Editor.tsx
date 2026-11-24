@@ -9,6 +9,7 @@ import { useEditor, useEditorStore } from "@/stores/editorStore";
 import { useStatusStore } from "@/stores/statusStore";
 import { loader, Editor as MonacoEditor } from "@monaco-editor/react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import { useShallow } from "zustand/shallow";
 import { example } from "./data";
 import { getInitialJSONFromSearch } from "./url";
@@ -53,6 +54,7 @@ interface EditorProps extends ComponentPropsWithoutRef<typeof MonacoEditor> {
 
 export default function Editor({ kind, ...props }: EditorProps) {
   const translations = useTranslations();
+  const { resolvedTheme } = useTheme();
   const setEditor = useEditorStore((state) => state.setEditor);
   const setTranslations = useEditorStore((state) => state.setTranslations);
   const { status, retry } = useMonacoLoader();
@@ -80,6 +82,7 @@ export default function Editor({ kind, ...props }: EditorProps) {
   return (
     <MonacoEditor
       language="json"
+      theme={resolvedTheme === "dark" ? "vs-dark" : "vs"}
       loading={<Loading />}
       options={{
         fontSize: 13, // 设置初始字体大小

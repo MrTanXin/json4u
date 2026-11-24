@@ -1,4 +1,8 @@
 {
+  "Theme": "Theme",
+  "LightTheme": "Light",
+  "DarkTheme": "Dark",
+  "SystemTheme": "System",
   "": "",
   "Loading": "Loading",
   "EditorLoadFailed": "The editor could not load. Check your connection and try again.",

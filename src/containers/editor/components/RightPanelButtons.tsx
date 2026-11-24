@@ -49,7 +49,7 @@ export default function RightPanelButtons({ viewMode }: { viewMode: ViewMode }) 
     <div className="flex items-center pl-2 ml-auto space-x-2">
       {viewMode === ViewMode.Text && (
         <>
-          <div className="flex items-center rounded-md pl-1 bg-muted text-zinc-600">
+          <div className="flex items-center rounded-md pl-1 bg-muted text-muted-foreground">
             <Switch checked={enableTextCompare} onCheckedChange={handleTextCompareChange} />
             <Button className="px-2" onClick={() => runCommand("compare")}>
               {t(enableTextCompare ? "TextCompare" : "compare")}

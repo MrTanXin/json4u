@@ -33,7 +33,7 @@ export function Table() {
     <div ref={containerRef} className="relative w-full h-full overflow-x-auto">
       <div
         ref={virtualRef}
-        className="bg-white"
+        className="bg-background"
         style={{
           width: `${width + globalStyle.scrollbarWidth}px`,
           height: `${height}px`,
@@ -68,7 +68,7 @@ export function Table() {
           ))}
         </div>
       </div>
-      <Background />
+      <Background className="dark:opacity-40" />
     </div>
   );
 }
