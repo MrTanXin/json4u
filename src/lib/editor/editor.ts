@@ -44,6 +44,7 @@ export class EditorWrapper {
 
   init() {
     this.listenOnChange();
+    this.formatAfterReplace();
     this.listenOnDidPaste();
     this.listenOnKeyDown();
     this.listenOnDropFile();
@@ -230,6 +231,8 @@ export class EditorWrapper {
     expectedEditorText?: string,
   ): Promise<{ set: boolean; parse: boolean }> {
     const startedAt = Date.now();
+    const model = this.model();
+    const version = model?.getVersionId();
     const options = {
       ...getStatusState().parseOptions,
       ...extraParseOptions,
@@ -239,7 +242,10 @@ export class EditorWrapper {
     const parsedTree = await this.worker().parseAndFormat(text, options);
     // Do not let a slow parse started for an older editor version overwrite a
     // newer edit or its comparison state.
-    if (expectedEditorText !== undefined && this.text() !== expectedEditorText) {
+    if (
+      expectedEditorText !== undefined &&
+      (this.model() !== model || model?.getVersionId() !== version || this.text() !== expectedEditorText)
+    ) {
       console.info("[json4u:parse] discarded stale parse", {
         kind: this.kind,
         inputLength: text.length,
@@ -292,6 +298,25 @@ export class EditorWrapper {
         console.l("skip onChange:", ev.versionId);
       }
     });
+  }
+
+  private formatAfterReplace() {
+    const executeCommand = this.editor.executeCommand.bind(this.editor);
+    // Monaco's find widget uses these sources for both button and keyboard replacements.
+    // Content change events do not expose the command source.
+    this.editor.executeCommand = (source, command) => {
+      if ((source !== "replace" && source !== "replaceAll") || !getStatusState().parseOptions.format) {
+        return executeCommand(source, command);
+      }
+
+      const previousText = this.text();
+      executeCommand(source, command);
+      const text = this.text();
+      if (text !== previousText) {
+        this.delayParseAndSet.cancel();
+        void this.parseAndSet(text, { format: true }, false, text);
+      }
+    };
   }
 
   listenOnDidPaste() {

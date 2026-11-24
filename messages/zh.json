@@ -30,7 +30,7 @@
   "download": "下载",
   "preview": "预览",
   "Auto Format": "格式化",
-  "auto_format_desc": "在粘贴文本或将文件拖放到编辑器中时，即使文本不是有效的 JSON 数据，也尝试自动进行格式化。",
+  "auto_format_desc": "粘贴文本、拖放文件或在编辑器中执行替换或全部替换后，自动尝试格式化。非 JSON 文本也支持格式化。",
   "Auto Unescape": "去除转义",
   "auto_unescape_desc": "在粘贴文本或将文件导入编辑器时，自动识别并去除一层字符串转义。",
   "Auto Unicode": "Unicode 转换",

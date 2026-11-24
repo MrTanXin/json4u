@@ -49,3 +49,49 @@ test.describe("edit in the editor", () => {
     await expect.poll(() => getEditorText(page)).toContain('"count": 1');
   });
 });
+
+test.describe("format after find and replace", () => {
+  const compactJson = '{"first":1,"second":1,"escaped":"\\u0061"}';
+
+  test.beforeEach(async ({ page }) => {
+    await getEditor(page, { goto: true, needTutorial: true });
+    await page.evaluate((text) => {
+      const editor = window.monacoApi.main;
+      editor.setValue(text);
+      editor.focus();
+    }, compactJson);
+  });
+
+  test("formats a single keyboard replacement without decoding Unicode escapes", async ({ page }) => {
+    await page.keyboard.press("ControlOrMeta+f");
+    await page.getByRole("button", { name: "Toggle Replace" }).click();
+    await page.getByRole("textbox", { name: "Find", exact: true }).fill("1,");
+    const replacement = page.getByRole("textbox", { name: "Replace", exact: true });
+    await replacement.fill("2,");
+    await expect.poll(() => getEditorText(page)).toBe(compactJson);
+
+    await replacement.press("Enter");
+    await expect.poll(() => getEditorText(page)).toContain('"first": 2');
+    await expect.poll(() => getEditorText(page)).toContain('"second": 1');
+    await expect.poll(() => getEditorText(page)).toContain('"\\u0061"');
+  });
+
+  for (const format of [true, false]) {
+    test("replaces all matches with Format " + (format ? "on" : "off"), async ({ page }) => {
+      if (!format) {
+        await page.getByRole("button", { name: "Format", exact: true }).click();
+      }
+      await page.evaluate(() => window.monacoApi.main.getAction("editor.action.startFindReplaceAction")?.run());
+      await page.getByRole("textbox", { name: "Find", exact: true }).fill("1,");
+      await page.getByRole("textbox", { name: "Replace", exact: true }).fill("2,");
+      await page.getByRole("button", { name: /^Replace All\b/ }).click();
+
+      if (format) {
+        await expect.poll(() => getEditorText(page)).toContain('"first": 2');
+        await expect.poll(() => getEditorText(page)).toContain('"second": 2');
+      } else {
+        await expect.poll(() => getEditorText(page)).toBe(compactJson.replaceAll("1,", "2,"));
+      }
+    });
+  }
+});
